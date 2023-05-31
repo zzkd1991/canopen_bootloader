@@ -1,0 +1,163 @@
+T1A90 000:188.919   SEGGER J-Link V7.86g Log File
+T1A90 000:189.000   DLL Compiled: Apr  6 2023 16:24:24
+T1A90 000:189.004   Logging started @ 2023-05-22 03:01
+T1A90 000:189.008 - 189.010ms
+T1A90 000:189.017 JLINK_SetWarnOutHandler(...)
+T1A90 000:189.022 - 0.006ms
+T1A90 000:189.026 JLINK_OpenEx(...)
+T1A90 000:189.846   Firmware: J-Link V9 compiled May  7 2021 16:26:12
+T1A90 000:190.088   Firmware: J-Link V9 compiled May  7 2021 16:26:12
+T1A90 000:190.187   Decompressing FW timestamp took 89 us
+T1A90 000:197.925   Hardware: V9.40
+T1A90 000:197.933   S/N: 69409349
+T1A90 000:197.938   OEM: SEGGER
+T1A90 000:197.944   Feature(s): RDI, GDB, FlashDL, FlashBP, JFlash
+T1A90 000:198.984   TELNET listener socket opened on port 19021
+T1A90 000:199.048   WEBSRV WEBSRV_Init(): Starting webserver thread(s)
+T1A90 000:199.129   WEBSRV Webserver running on local port 19080
+T1A90 000:202.956 - 13.935ms returns "O.K."
+T1A90 000:202.977 JLINK_SetErrorOutHandler(...)
+T1A90 000:202.981 - 0.005ms
+T1A90 000:202.996 JLINK_ExecCommand("ProjectFile = "E:\Copensource\canopen_bootloader\double_solenoid\Project\JLinkSettings.ini"", ...). 
+T1A90 000:211.849   Ref file found at: D:\Keil_v5\ARM\Segger\JLinkDevices.ref
+T1A90 000:211.984   REF file references invalid XML file: C:\Program Files\SEGGER\JLink\JLinkDevices.xml
+T1A90 000:212.118 - 9.126ms returns 0x00
+T1A90 000:212.135 JLINK_ExecCommand("Device = STM32F405RGTx", ...). 
+T1A90 000:212.645   Device "STM32F405RG" selected.
+T1A90 000:212.861 - 0.723ms returns 0x00
+T1A90 000:212.870 JLINK_ExecCommand("DisableConnectionTimeout", ...). 
+T1A90 000:212.876 - 0.003ms returns 0x01
+T1A90 000:212.882 JLINK_GetHardwareVersion()
+T1A90 000:212.885 - 0.005ms returns 94000
+T1A90 000:212.895 JLINK_GetDLLVersion()
+T1A90 000:212.899 - 0.005ms returns 78607
+T1A90 000:212.906 JLINK_GetOEMString(...)
+T1A90 000:212.911 JLINK_GetFirmwareString(...)
+T1A90 000:212.914 - 0.005ms
+T1A90 000:212.921 JLINK_GetDLLVersion()
+T1A90 000:212.925 - 0.005ms returns 78607
+T1A90 000:212.929 JLINK_GetCompileDateTime()
+T1A90 000:212.933 - 0.005ms
+T1A90 000:212.938 JLINK_GetFirmwareString(...)
+T1A90 000:212.941 - 0.005ms
+T1A90 000:212.946 JLINK_GetHardwareVersion()
+T1A90 000:212.950 - 0.005ms returns 94000
+T1A90 000:212.954 JLINK_GetSN()
+T1A90 000:212.958 - 0.005ms returns 69409349
+T1A90 000:212.963 JLINK_GetOEMString(...)
+T1A90 000:212.969 JLINK_TIF_Select(JLINKARM_TIF_JTAG)
+T1A90 000:213.599 - 0.635ms returns 0x00
+T1A90 000:213.609 JLINK_HasError()
+T1A90 000:213.623 JLINK_SetSpeed(5000)
+T1A90 000:213.763 - 0.144ms
+T1A90 000:214.475 JLINK_HasError()
+T1A90 000:214.485 JLINK_SetResetType(JLINKARM_RESET_TYPE_NORMAL)
+T1A90 000:214.489 - 0.006ms returns JLINKARM_RESET_TYPE_NORMAL
+T1A90 000:214.494 JLINK_Reset()
+T1A90 000:214.613   InitTarget() start
+T1A90 000:214.622    J-Link Script File: Executing InitTarget()
+T1A90 000:214.717   JTAG selected. Identifying JTAG Chain...
+T1A90 000:215.628   TotalIRLen = 9, IRPrint = 0x0011
+T1A90 000:215.927   JTAG chain detection found 2 devices:
+T1A90 000:215.936    #0 Id: 0x4BA00477, IRLen: 04, CoreSight JTAG-DP
+T1A90 000:215.942    #1 Id: 0x06413041, IRLen: 05, STM32 Boundary Scan
+T1A90 000:215.948   JTAG Chain Identified. Connecting to DAP TAP...
+T1A90 000:215.955   Successfully connected to selected DAP TAP.
+T1A90 000:217.490   DAP initialized successfully.
+T1A90 000:221.859   InitTarget() end - Took 7.23ms
+T1A90 000:222.797   TotalIRLen = 9, IRPrint = 0x0011
+T1A90 000:223.201   JTAG chain detection found 2 devices:
+T1A90 000:223.209    #0 Id: 0x4BA00477, IRLen: 04, CoreSight JTAG-DP
+T1A90 000:223.215    #1 Id: 0x06413041, IRLen: 05, STM32 Boundary Scan
+T1A90 000:224.303   DPv0 detected
+T1A90 000:224.312   Scanning AP map to find all available APs
+T1A90 000:224.774   AP[1]: Stopped AP scan as end of AP map has been reached
+T1A90 000:224.786   AP[0]: AHB-AP (IDR: 0x24770011)
+T1A90 000:224.792   Iterating through AP map to find AHB-AP to use
+T1A90 000:225.478   AP[0]: Core found
+T1A90 000:225.486   AP[0]: AHB-AP ROM base: 0xE00FF000
+T1A90 000:225.807   CPUID register: 0x410FC241. Implementer code: 0x41 (ARM)
+T1A90 000:225.843   Found Cortex-M4 r0p1, Little endian.
+T1A90 000:226.102   -- Max. mem block: 0x00010E60
+T1A90 000:227.531   CPU_ReadMem(4 bytes @ 0xE000EDF0)
+T1A90 000:227.798   CPU_ReadMem(4 bytes @ 0xE0002000)
+T1A90 000:228.065   FPUnit: 6 code (BP) slots and 2 literal slots
+T1A90 000:228.073   CPU_ReadMem(4 bytes @ 0xE000EDFC)
+T1A90 000:228.382   CPU_WriteMem(4 bytes @ 0xE000EDFC)
+T1A90 000:228.626   CPU_ReadMem(4 bytes @ 0xE0001000)
+T1A90 000:228.891   CPU_WriteMem(4 bytes @ 0xE0001000)
+T1A90 000:229.131   CPU_ReadMem(4 bytes @ 0xE000ED88)
+T1A90 000:229.382   CPU_WriteMem(4 bytes @ 0xE000ED88)
+T1A90 000:229.620   CPU_ReadMem(4 bytes @ 0xE000ED88)
+T1A90 000:229.886   CPU_WriteMem(4 bytes @ 0xE000ED88)
+T1A90 000:230.128   CoreSight components:
+T1A90 000:230.136   ROMTbl[0] @ E00FF000
+T1A90 000:230.141   CPU_ReadMem(64 bytes @ 0xE00FF000)
+T1A90 000:230.858   CPU_ReadMem(32 bytes @ 0xE000EFE0)
+T1A90 000:231.402   [0][0]: E000E000 CID B105E00D PID 000BB00C SCS-M7
+T1A90 000:231.409   CPU_ReadMem(32 bytes @ 0xE0001FE0)
+T1A90 000:231.843   [0][1]: E0001000 CID B105E00D PID 003BB002 DWT
+T1A90 000:231.884   CPU_ReadMem(32 bytes @ 0xE0002FE0)
+T1A90 000:232.335   [0][2]: E0002000 CID B105E00D PID 002BB003 FPB
+T1A90 000:232.345   CPU_ReadMem(32 bytes @ 0xE0000FE0)
+T1A90 000:232.740   [0][3]: E0000000 CID B105E00D PID 003BB001 ITM
+T1A90 000:232.749   CPU_ReadMem(32 bytes @ 0xE0040FE0)
+T1A90 000:233.136   [0][4]: E0040000 CID B105900D PID 000BB9A1 TPIU
+T1A90 000:233.145   CPU_ReadMem(32 bytes @ 0xE0041FE0)
+T1A90 000:233.561   [0][5]: E0041000 CID B105900D PID 000BB925 ETM
+T1A90 000:233.606   CPU is running
+T1A90 000:233.616   CPU_WriteMem(4 bytes @ 0xE000EDF0)
+T1A90 000:233.854   CPU is running
+T1A90 000:233.864   CPU_WriteMem(4 bytes @ 0xE000EDFC)
+T1A90 000:234.109   Reset: Halt core after reset via DEMCR.VC_CORERESET.
+T1A90 000:234.121   Reset: Reset device via AIRCR.SYSRESETREQ.
+T1A90 000:234.126   CPU is running
+T1A90 000:234.132   CPU_WriteMem(4 bytes @ 0xE000ED0C)
+T1A90 000:285.990   CPU_ReadMem(4 bytes @ 0xE000EDF0)
+T1A90 000:286.309   CPU_ReadMem(4 bytes @ 0xE000EDF0)
+T1A90 000:288.538   CPU_WriteMem(4 bytes @ 0xE000EDFC)
+T1A90 000:293.951   CPU_ReadMem(4 bytes @ 0xE000EDF0)
+T1A90 000:296.300   CPU_WriteMem(4 bytes @ 0xE000EDFC)
+T1A90 000:296.578   CPU_WriteMem(4 bytes @ 0xE0001028)
+T1A90 000:296.851   CPU_WriteMem(4 bytes @ 0xE0001038)
+T1A90 000:297.102   CPU_WriteMem(4 bytes @ 0xE0001048)
+T1A90 000:297.379   CPU_WriteMem(4 bytes @ 0xE0001058)
+T1A90 000:297.656   CPU_WriteMem(4 bytes @ 0xE0002000)
+T1A90 000:297.938   CPU_ReadMem(4 bytes @ 0xE000EDFC)
+T1A90 000:298.208   CPU_ReadMem(4 bytes @ 0xE0001000)
+T1A90 000:298.511 - 84.021ms
+T1A90 000:298.522 JLINK_GetIdData(pIdData)
+T1A90 000:298.527   pIdData->ScanLen=9
+T1A90 000:298.532   
+T1A90 000:298.535   pIdData->NumDevices=2
+T1A90 000:298.540   
+T1A90 000:298.544   pIdData->aId[0]=0x4BA00477
+T1A90 000:298.548   
+T1A90 000:298.552   pIdData->aIrRead[0]=0
+T1A90 000:298.557   
+T1A90 000:298.560   pIdData->aScanLen[0]=0
+T1A90 000:298.565   
+T1A90 000:298.568   pIdData->aScanRead[0]=0
+T1A90 000:298.573   
+T1A90 000:298.577 - 0.056ms
+T1A90 000:298.610 JLINK_JTAG_GetDeviceID(DeviceIndex = 0)
+T1A90 000:298.616 - 0.007ms returns 1268778103
+T1A90 000:298.620 JLINK_JTAG_GetDeviceInfo(DeviceIndex = 0)
+T1A90 000:298.624 - 0.005ms returns 0
+T1A90 000:298.628 JLINK_JTAG_GetDeviceID(DeviceIndex = 1)
+T1A90 000:298.632 - 0.005ms returns 104935489
+T1A90 000:298.636 JLINK_JTAG_GetDeviceInfo(DeviceIndex = 1)
+T1A90 000:298.639 - 0.005ms returns 0
+T1A90 000:302.612 JLINK_GetFirmwareString(...)
+T1A90 000:302.620 - 0.010ms
+T1A90 009:870.515 JLINK_Close()
+T1A90 009:870.755   OnDisconnectTarget() start
+T1A90 009:870.765    J-Link Script File: Executing OnDisconnectTarget()
+T1A90 009:870.781   CPU_WriteMem(4 bytes @ 0xE0042004)
+T1A90 009:871.054   CPU_WriteMem(4 bytes @ 0xE0042008)
+T1A90 009:871.389   OnDisconnectTarget() end - Took 622us
+T1A90 009:871.398   CPU_ReadMem(4 bytes @ 0xE0001000)
+T1A90 009:871.695   CPU_WriteMem(4 bytes @ 0xE0001004)
+T1A90 009:881.770 - 11.264ms
+T1A90 009:881.781   
+T1A90 009:881.784   Closed
