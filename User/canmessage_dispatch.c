@@ -12,6 +12,8 @@ uint64_t bin_file_length = 0;
 uint16_t deviceid_array[20] = {0};
 int cnt = 10;
 uint32_t block_received_packet_num = 0;
+extern uint32_t enter_bootloader_flag;
+uint16_t prepare_flow_flag = 1;
 
 
 int device_find(uint16_t id)
@@ -24,29 +26,80 @@ int device_find(uint16_t id)
 			return 0;
 		}
 	}
-	
-	
 	return 1;
+}
+
+void prepare_flow(Message *m)
+{
+	extern uint32_t master_nodeid;
+	extern uint32_t file_length;
+
+	Message respond_message = {0};
+	int i = 0;
+	if(m == NULL)
+	{
+		return;
+	}
+	
+	if(m->data[0] == 0x00 && m->data[1] == 0x00 && m->data[2] == 0x00 && m->data[3] == 0x00
+		&& m->data[4] == 0x00 && m->data[5] == 0x00 && m->data[6] == 0x00 && m->data[7] == 0xFF)
+	{
+		respond_message.data[7] = 0xFF;
+		respond_message.len = 8;
+		respond_message.rtr = CAN_RTR_DATA;
+		respond_message.cob_id = master_nodeid;		
+		for(i = 0; i < 6; i++)
+		{
+			respond_message.data[i] = 0x00;
+		}
+		
+		if(CAN_SEND_OK != Can_Send(NULL, &respond_message))
+		{
+			Error_Handler();
+		}		
+		enter_bootloader_flag = 1;
+	}
+
+	if(m->data[6] == 0xFF && m->data[7] == 0xFF)
+	{
+		memcpy(&file_length, m->data, 6);
+		respond_message.len = 8;
+		respond_message.rtr = CAN_RTR_DATA;
+		respond_message.cob_id = master_nodeid;		
+		respond_message.data[6] = 0xFF;
+		respond_message.data[7] = 0xFF;
+		for(i = 0; i < 5; i++)
+		{
+			respond_message.data[i] = 0x00;
+		}
+
+		if(CAN_SEND_OK != Can_Send(NULL, &respond_message))
+		{
+			Error_Handler();
+		}
+		prepare_flow_flag = 0;
+	}
 }
 
 int NEW_Can_Message_Dispatch(Message *m)
 {
-	//uint8_t ccs = 0;
-
-	//ccs = getSDOcs(m->data[0]);
-
-	//if(ccs == 3 || ccs == 7)
+	if(prepare_flow_flag == 1)
+	{
+		prepare_flow(m);
+	}
+	else
 	{
 		block_received_packet_num++;
 		pack_dispatch(m);
 	}
+
 	return 0;
 }
 
 void report_device_id(void)
 {
 	extern uint32_t slave_nodeid;
-  extern uint32_t master_nodeid;	
+    extern uint32_t master_nodeid;	
 	extern __IO u32 TimingDelay2;
 	Message m;
 	int cur_id = (int)slave_nodeid;

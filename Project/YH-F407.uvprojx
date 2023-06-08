@@ -780,16 +780,6 @@
               <FilePath>..\User\menu.c</FilePath>
             </File>
             <File>
-              <FileName>tim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\tim.c</FilePath>
-            </File>
-            <File>
-              <FileName>gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\gpio.c</FilePath>
-            </File>
-            <File>
               <FileName>spi_flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\spi_flash.c</FilePath>
@@ -833,31 +823,6 @@
               <FileName>canmessage_dispatch.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\canmessage_dispatch.c</FilePath>
-            </File>
-            <File>
-              <FileName>my_canopen_adapter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\my_canopen\my_canopen_adapter.c</FilePath>
-            </File>
-            <File>
-              <FileName>objdict.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\my_canopen\objdict.c</FilePath>
-            </File>
-            <File>
-              <FileName>sdo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\my_canopen\sdo.c</FilePath>
-            </File>
-            <File>
-              <FileName>objacces.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\my_canopen\objacces.c</FilePath>
-            </File>
-            <File>
-              <FileName>value_conversion.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\my_canopen\value_conversion.c</FilePath>
             </File>
           </Files>
         </Group>

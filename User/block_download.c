@@ -29,6 +29,9 @@ uint32_t last_packet_arrived_tick = 0;
 Message current_packet[NUM_OF_PACKET_PER_BLOCK + 1] = {0};
 uint64_t block_total_received_byte = 0;
 uint8_t block_cur_percent_inc = 0;
+int first_procedure = 1;
+int second_procedure = 0;
+
 
 
 int packet_index_preservation(int index, int last_packet_flag)
@@ -526,9 +529,6 @@ int new_received_last_section(Message *m)
 	}
 	return 0;
 }
-
-int first_procedure = 1;
-int second_procedure = 0;
 
 int pack_dispatch(Message *m)
 {

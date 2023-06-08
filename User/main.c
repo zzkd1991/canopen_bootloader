@@ -32,6 +32,9 @@ uint32_t dest_address = 0;
 uint32_t *sp = NULL;
 extern SPI_HandleTypeDef SpiHandle;
 extern UART_HandleTypeDef UartHandle;
+extern uint32_t device_id;
+extern uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1];
+
 
 uint32_t slave_nodeid;
 uint32_t master_nodeid;
@@ -39,120 +42,101 @@ uint32_t device_id;
 
 int main(void)
 {
-	
-  int flag = 0;
-	
-  //HAL_Init();        
-  SystemClock_Config();
-  SysTick_Init();
-  FLASH_If_Init();
-  LED_GPIO_Config();
-  DEBUG_UART_Config();
-	
-	spi_flash_config();
-
-  Data_Recover();
-
-  if(id1 >= 101 || id1 <= 0)
-  {
-		id1 = 0x0A;		
-  }
-  
-  extern uint32_t device_id;
-
-  device_id = id1;
-  master_nodeid = 0x580 + id1;
-  slave_nodeid = 0x600 + id1;
-	
-  extern uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1];
-
-
-  memset(&packet_index_array[0], 0xff, sizeof(packet_index_array));
-
-	
-	led1_show_white();
-	led2_show_white();
-	
-  Can_Config();	
-		
-  ClearCanQueue();
-
-  dest_address = APPLICATION_ADDRESS;
-
-  printf("hello world\n");
-
+    int flag = 0;
+    //HAL_Init();        
+    SystemClock_Config();
+    SysTick_Init();
+    FLASH_If_Init();
+    LED_GPIO_Config();
+    DEBUG_UART_Config();
+    //spi_flash_config();
+    //Data_Recover();
+    
+    if(id1 >= 101 || id1 <= 0)
+    {
+    	id1 = 0x0A;		
+    }
+    
+    device_id = id1;
+    master_nodeid = 0x580 + id1;
+    slave_nodeid = 0x600 + id1;
+    
+    memset(&packet_index_array[0], 0xff, sizeof(packet_index_array));
+    led1_show_white();
+    led2_show_white();
+    Can_Config();	
+    ClearCanQueue();
+    dest_address = APPLICATION_ADDRESS;
+    printf("hello world\n");
   
 #if 1
-  while(1)
-  {	
-  	Can_data_Process();
-	if(enter_bootloader_flag == 0xff)
-	{
-		//report_node_info();		
-	}
-	if(enter_bootloader_flag != 0xff)
-	{
-		GetUpperComputerInfoAndWait3S(&flag);		
-	}
-  	if(flag == 1)//进入bootloader模式
-  	{
-  		Main_Menu();
- 	}
-	if(cnt == 0)
-  //extern __IO uint32_t TimingDelay1;
-	//if(TimingDelay1 >= 200000)//2s
-	{
-	  sp = (uint32_t *)APPLICATION_ADDRESS;
-	  //printf("*sp %x\n", *sp);
-	//没有进入bootloader模式，直接引导主程序
-	  if(((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000) == 0x20000000)//检查栈顶地址是否合法
-	  {
-		  JumpAddress = *(__IO uint32_t *)(APPLICATION_ADDRESS + 4);
-		  Jump_To_Application = (pFunction)JumpAddress;
-		  //printf("Jump_To_Application %p", Jump_To_Application);
-		  //printf("JumpAddress %d\n", JumpAddress);	
-		  //printf("enter\n");
-		  //printf("dest_address %d\n", dest_address);
-		  __set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);
-#if 1	  
-		  HAL_NVIC_DisableIRQ(SysTick_IRQn);
-	  
-		  HAL_CAN_MspDeInit(&hcan1);
-		  HAL_UART_MspDeInit(&UartHandle);
-  		if (HAL_SPI_DeInit(&SpiHandle) != HAL_OK)
-  		{
-    		Error_Handler();
-  		}
-		  int i = 0;
-		  for(i = 0; i < 8; i++)
-		  {
-				NVIC->ICER[i] = 0xFFFFFFFF;
-				NVIC->ICPR[i] = 0xFFFFFFFF;
-		  }			
-		  LED_GPIO_DeConfig();
-		  HAL_RCC_DeInit();
-		  SysTick->CTRL = 0;
-		  SysTick->LOAD = 0;
-		  SysTick->VAL = 0;			
-#else
-		  //跳转前需要关闭无关中断，防止APP中未使用该中断，却因为中断而跳转到中断向量表时找不到对应函数入口
-		  int i = 0;
-		  for(i = 0; i < 8; i++)
-		  {
-				NVIC->ICER[i] = 0xFFFFFFFF;
-				NVIC->ICPR[i] = 0xFFFFFFFF;
-		  }
-		  HAL_RCC_DeInit();
-		  SysTick->CTRL = 0;
-		  SysTick->LOAD = 0;
-		  SysTick->VAL = 0;
+		while(1)
+		{	
+			Can_data_Process();
+			if(enter_bootloader_flag == 0xff)
+			{
+				//report_node_info();		
+			}
+			if(enter_bootloader_flag != 0xff)
+			{
+				GetUpperComputerInfoAndWait3S(&flag);		
+			}
+			if(flag == 1)//进入bootloader模式
+			{
+				Main_Menu();
+			}
+			if(cnt == 0)
+			{
+				sp = (uint32_t *)APPLICATION_ADDRESS;
+				//printf("*sp %x\n", *sp);
+				//没有进入bootloader模式，直接引导主程序
+				if(((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000) == 0x20000000)//检查栈顶地址是否合法
+				{
+					JumpAddress = *(__IO uint32_t *)(APPLICATION_ADDRESS + 4);
+					Jump_To_Application = (pFunction)JumpAddress;
+					//printf("Jump_To_Application %p", Jump_To_Application);
+					//printf("JumpAddress %d\n", JumpAddress);	
+					//printf("enter\n");
+					//printf("dest_address %d\n", dest_address);
+					__set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);
+		#if 1	  
+					HAL_NVIC_DisableIRQ(SysTick_IRQn);
 
-#endif		  
-		  Jump_To_Application();
-	  }
-	}
+					HAL_CAN_MspDeInit(&hcan1);
+					HAL_UART_MspDeInit(&UartHandle);
+					if (HAL_SPI_DeInit(&SpiHandle) != HAL_OK)
+					{
+						Error_Handler();
+					}
+					int i = 0;
+					for(i = 0; i < 8; i++)
+					{
+						NVIC->ICER[i] = 0xFFFFFFFF;
+						NVIC->ICPR[i] = 0xFFFFFFFF;
+					}			
+					LED_GPIO_DeConfig();
+					HAL_RCC_DeInit();
+					SysTick->CTRL = 0;
+					SysTick->LOAD = 0;
+					SysTick->VAL = 0;			
+		#else
+					//跳转前需要关闭无关中断，防止APP中未使用该中断，却因为中断而跳转到中断向量表时找不到对应函数入口
+					int i = 0;
+					for(i = 0; i < 8; i++)
+					{
+					NVIC->ICER[i] = 0xFFFFFFFF;
+					NVIC->ICPR[i] = 0xFFFFFFFF;
+					}
+					HAL_RCC_DeInit();
+					SysTick->CTRL = 0;
+					SysTick->LOAD = 0;
+					SysTick->VAL = 0;
 
-  }
+		#endif		  
+					Jump_To_Application();
+				}
+			}
+		}
 #endif
 }
 /**
