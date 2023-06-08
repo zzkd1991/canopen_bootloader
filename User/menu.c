@@ -33,12 +33,9 @@
 #include "common.h"
 #include "internalFlash.h"
 #include "menu.h"
-#include "ymodem.h"
 #include "bsp_can.h"
 #include "main.h"
-#include "tim.h"
 #include "usart.h"
-#include "./usart/bsp_debug_usart.h"
 #include "spi.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,13 +46,8 @@ int bin_receved_succeed = 0;
 pFunction Jump_To_Application;
 uint32_t JumpAddress;
 __IO uint32_t FlashProtection = 0;
-uint8_t tab_1024[1024] =
-  {
-    0
-  };
-uint8_t FileName[FILE_NAME_LENGTH];
 extern uint32_t dest_address;
-
+extern UART_HandleTypeDef UartHandle;
 
 
 
@@ -78,12 +70,9 @@ void Main_Menu(void)
 			  __set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);  
 #if 1	  
 			  HAL_NVIC_DisableIRQ(SysTick_IRQn);
-			  HAL_TIM_Base_DeInit(&htim2);
-			  HAL_TIM_Base_DeInit(&htim4);
 				
 			  HAL_CAN_MspDeInit(&hcan1);
-			  HAL_UART_MspDeInit(&huart2);
-			  HAL_UART_MspDeInit(&huart3);
+			  HAL_UART_MspDeInit(&UartHandle);
 				extern SPI_HandleTypeDef SpiHandle;
 			  if (HAL_SPI_DeInit(&SpiHandle) != HAL_OK)
 			  {

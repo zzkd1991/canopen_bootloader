@@ -22,27 +22,34 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
+	 
+#include "stm32f4xx.h"
+#include "main.h"	 
 
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#define DEBUG_UART_BAUDRATE										115200
+#define DEBUG_UART													USART2
+#define DEBUG_UART_CLK_ENABLE()							__USART2_CLK_ENABLE()
 
-/* USER CODE BEGIN Includes */
+#define RCC_PERIPHCLK_UARTx									RCC_PERIPHCLK_USART4
+#define RCC_UARTxCLKSOURCE_SYSCLK						RCC_UART4CLKSOURCE_SYSCLK
 
-/* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart2;
+#define DEBUG_UART_RX_GPIO_PORT					GPIOA
+#define DEBUG_UART_RX_GPIO_CLK_ENABLE()		__GPIOA_CLK_ENABLE()
+#define DEBUG_UART_RX_PIN								GPIO_PIN_3
+#define DEBUG_UART_RX_AF								GPIO_AF7_USART2
 
-/* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
+#define DEBUG_UART_TX_GPIO_PORT				GPIOA
+#define DEBUG_UART_TX_GPIO_CLK_ENABLE()			__GPIOA_CLK_ENABLE()
+#define DEBUG_UART_TX_PIN								GPIO_PIN_2
+#define DEBUG_UART_TX_AF								GPIO_AF7_USART2
 
-void MX_USART3_UART_Init(void);
-void MX_USART2_UART_Init(void);
 
-/* USER CODE BEGIN Prototypes */
-
-/* USER CODE END Prototypes */
+#define DEBUG_UART_IRQHandler					UART2_IRQHandler
+#define DEBUG_UART_IRQ								USART2_IRQn
+	 
+void DEBUG_UART_Config(void);	 
 
 #ifdef __cplusplus
 }

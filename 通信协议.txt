@@ -1,0 +1,52 @@
+上位机								下位机
+1进入bootloader模式------------------》FF00000000000000
+《-----------------------------------2回复ACK消息（FF00000000000000）
+3发送bin文件大小--------------------》上位机等待状态FFFF（前2个字节）后6个字节存放文件大小
+《-----------------------------------4回复ACK消息（FFFF000000000000）
+
+---------下面流程开始正式数据传输---------------
+上位机连续发送30（约定好了）个数据包作为一个数据段大小，首先发送这30的数据包计算出的CRC值，该CRC值用4个字节进行存储，后四个字节用0填充作为第一个报文发送。第二步开始发送具体的数据包，每个数据包第一字节的最高位((m->data[0] & 0x80) >> 7)代表是否为最后一个数据包，值为1代表是最后一个数据包，为0代表普通数据包
+第一个字节的低5bit（m->data[0] & 0x1F）代表数据包的索引，索引从0开始。数据包全部发送完成后，开始等待下位机回复ACK消息,ACK消息包含两个报文，一个是正常ACK消息，另个一个是接收进度。供上位机显示下载进度。具体消息内容看下面定义。
+
+如果过收到正确ACK消息，上位机接着进行下一个数据段的发送过程(30个数据包)，如果收到错误的ACK报文，流程终止。这个流程循环进行直到将数据段发送完，最后将不足一个段的数据报文的CRC值和具体内容发送给下位机。流程结束。
+
+
+
+下位机回复ACK报文类型按下列消息回复
+void form_ack_message(Message *ack_message, uint16_t index, uint8_t subindex, uint8_t ackcode, uint32_t error_section, uint8_t command_code)
+{
+	extern uint32_t master_nodeid;
+
+	ack_message->len = 8;
+	ack_message->rtr = CAN_RTR_DATA;
+	ack_message->cob_id = master_nodeid;
+	ack_message->data[0] = command_code;
+	ack_message->data[1] = index & 0xFF;
+	ack_message->data[2] = index << 8;
+	ack_message->data[3] = subindex;
+	ack_message->data[4] = ackcode;
+	ack_message->data[5] = (error_section & 0xFF0000) >> 16;
+	ack_message->data[6] = (error_section & 0x00FF00) >> 8;
+	ack_message->data[7] = (error_section & 0x0000FF);
+}
+
+index-----索引
+subindex----子索引
+ackcode------响应码
+error_section------发送错误时段的编号
+command_code-----命令码
+
+1下位机写入flash时发送错误
+form_ack_message(&ack_message, 0x02, 0x01, 0xFE, received_section_num, 0x60);
+2发生CRC错误时响应
+form_ack_message(&ack_message, 0x02, 0x01, 0xFF, received_section_num, 0x60);
+3下载进度消息
+block_total_received_byte += NUM_OF_PACKET_PER_BLOCK * 7;
+block_cur_percent_inc = (uint8_t)(((float)block_total_received_byte / file_length) * 100);
+ack_message.data[0] = 0x60;
+ack_message.data[1] = 0x00;
+ack_message.data[2] = 0x01;
+ack_message.data[3] = 0x0a;//发送百分比
+ack_message.data[4] = block_cur_percent_inc;
+4收到报文数量不足
+form_ack_message(&ack_message, 0x02, 0x01, 0xFE, received_section_num, 0x60);

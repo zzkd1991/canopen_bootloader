@@ -79,11 +79,4 @@
 ..\output\canmessage_dispatch.o: ..\User\message_list.h
 ..\output\canmessage_dispatch.o: ..\User\los_typedef.h
 ..\output\canmessage_dispatch.o: ..\User\crc.h
-..\output\canmessage_dispatch.o: ..\User\my_canopen\my_canopen_adapter.h
-..\output\canmessage_dispatch.o: ..\User\my_canopen\applicfg.h
-..\output\canmessage_dispatch.o: ..\User\my_canopen\objdictdef.h
-..\output\canmessage_dispatch.o: ..\User\my_canopen\data.h
-..\output\canmessage_dispatch.o: ..\User\my_canopen\sdo.h
-..\output\canmessage_dispatch.o: ..\User\my_canopen\data.h
-..\output\canmessage_dispatch.o: ..\User\my_canopen\objacces.h
 ..\output\canmessage_dispatch.o: ..\User\led.h

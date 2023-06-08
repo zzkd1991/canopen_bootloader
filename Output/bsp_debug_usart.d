@@ -1,10 +1,5 @@
 ..\output\bsp_debug_usart.o: ..\User\usart\bsp_debug_usart.c
 ..\output\bsp_debug_usart.o: ..\User\usart.h
-..\output\bsp_debug_usart.o: ..\User\main.h
-..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h
-..\output\bsp_debug_usart.o: ..\User\stm32f4xx_hal_conf.h
-..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h
-..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h
 ..\output\bsp_debug_usart.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
 ..\output\bsp_debug_usart.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f405xx.h
 ..\output\bsp_debug_usart.o: ..\Libraries\CMSIS\Include\core_cm4.h
@@ -15,6 +10,10 @@
 ..\output\bsp_debug_usart.o: ..\Libraries\CMSIS\Include\core_cmSimd.h
 ..\output\bsp_debug_usart.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h
 ..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h
+..\output\bsp_debug_usart.o: ..\User\stm32f4xx_hal_conf.h
+..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h
+..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h
+..\output\bsp_debug_usart.o: ..\Libraries\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
 ..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\Legacy/stm32_hal_legacy.h
 ..\output\bsp_debug_usart.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 ..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc_ex.h
@@ -68,6 +67,7 @@
 ..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h
 ..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h
 ..\output\bsp_debug_usart.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h
+..\output\bsp_debug_usart.o: ..\User\main.h
 ..\output\bsp_debug_usart.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\output\bsp_debug_usart.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\output\bsp_debug_usart.o: ..\User\inc\bsp_SysTick.h

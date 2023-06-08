@@ -69,13 +69,10 @@
 ..\output\menu.o: ..\Libraries\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h
 ..\output\menu.o: ..\User\inc\internalFlash.h
 ..\output\menu.o: ..\User\inc\menu.h
-..\output\menu.o: ..\User\inc\ymodem.h
 ..\output\menu.o: ..\User\bsp_can.h
 ..\output\menu.o: ..\User\main.h
 ..\output\menu.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\output\menu.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\output\menu.o: ..\User\inc\bsp_SysTick.h
-..\output\menu.o: ..\User\tim.h
 ..\output\menu.o: ..\User\usart.h
-..\output\menu.o: ..\User\./usart/bsp_debug_usart.h
 ..\output\menu.o: ..\User\spi.h

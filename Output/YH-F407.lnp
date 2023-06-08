@@ -76,8 +76,6 @@
 "..\output\bsp_systick.o"
 "..\output\bsp_can.o"
 "..\output\menu.o"
-"..\output\tim.o"
-"..\output\gpio.o"
 "..\output\spi_flash.o"
 "..\output\spi.o"
 "..\output\recover.o"
@@ -87,11 +85,6 @@
 "..\output\led.o"
 "..\output\bin_backup.o"
 "..\output\canmessage_dispatch.o"
-"..\output\my_canopen_adapter.o"
-"..\output\objdict.o"
-"..\output\sdo.o"
-"..\output\objacces.o"
-"..\output\value_conversion.o"
 --library_type=microlib --strict --scatter "..\Output\YH-F407.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

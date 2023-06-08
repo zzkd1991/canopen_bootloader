@@ -55,15 +55,9 @@ static void _Error_Handler(char *file, int line)
 	while(1){}
 }
 
-#define C13_Pin GPIO_PIN_13
-#define C13_GPIO_Port GPIOC
-#define F_CS_Pin GPIO_PIN_4
-#define F_CS_GPIO_Port GPIOA
 
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
-
-void report_lvdt_loaction(void);
 
 #endif /* __MAIN_H */
 

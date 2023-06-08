@@ -1,22 +1,18 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx.h"
-#include "./usart/bsp_debug_usart.h"
+#include "usart.h"
 #include "internalFlash.h"
 #include "common.h"
 #include "menu.h"
 #include "bsp_SysTick.h"
 #include "bsp_can.h"
 #include "usart.h"
-#include "tim.h"
-#include "gpio.h"
 #include "spi_flash.h"
 #include "recover.h"
 #include "can_queue.h"
 #include "led.h"
 #include "block_download.h"
-#include "my_canopen_adapter.h"
-#include "value_conversion.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,54 +20,36 @@
 extern void Main_Menu(void);
 extern pFunction Jump_To_Application;
 extern void Can_data_Process(void);
-extern void report_node_info(void);
 extern uint32_t JumpAddress;
 extern int bin_receved_succeed;
 extern CAN_HandleTypeDef hcan1;
 extern uint32_t id1;
-extern uint32_t master_nodeid;
 extern uint32_t enter_bootloader_flag;
 extern int cnt;
 
 
 uint32_t dest_address = 0;
-int lvdt_report_button = 1;
-int deviceid_report_button = 1;
 uint32_t *sp = NULL;
-extern uint32_t slave_nodeid;
-my_message *my_m;
-my_message *my_point;
-extern CO_Data ObjDict_Data;
-
-uint32_t unusedvalue = 0;
-
-extern void USART3_GPIO_Config(void);
-
 extern SPI_HandleTypeDef SpiHandle;
+extern UART_HandleTypeDef UartHandle;
 
+uint32_t slave_nodeid;
+uint32_t master_nodeid;
+uint32_t device_id;
 
 int main(void)
 {
 	
   int flag = 0;
-  int i = 0;
 	
   //HAL_Init();        
   SystemClock_Config();
   SysTick_Init();
   FLASH_If_Init();
-  MX_GPIO_Init();
   LED_GPIO_Config();
-
-  
-  MX_USART3_UART_Init();
-  MX_USART2_UART_Init();
-	//USART3_GPIO_Config();
-
-  MX_TIM2_Init();
-  MX_TIM4_Init();
+  DEBUG_UART_Config();
 	
-spi_flash_config();
+	spi_flash_config();
 
   Data_Recover();
 
@@ -80,7 +58,7 @@ spi_flash_config();
 		id1 = 0x0A;		
   }
   
-  extern UNS32 device_id;
+  extern uint32_t device_id;
 
   device_id = id1;
   master_nodeid = 0x580 + id1;
@@ -92,21 +70,10 @@ spi_flash_config();
   memset(&packet_index_array[0], 0xff, sizeof(packet_index_array));
 
 	
-	LED1_ON;
-	LED2_ON;
-	LED3_ON;
+	led1_show_white();
+	led2_show_white();
 	
-  Can_Config();
-
-  	Set_Objdict_Callback_Func();
-
-	InitCANdevice(1000, id1);
-	InitNode(&ObjDict_Data, 0);
-
-	HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
-	HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_2);
-	HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
-	HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_2);  	
+  Can_Config();	
 		
   ClearCanQueue();
 
@@ -114,22 +81,6 @@ spi_flash_config();
 
   printf("hello world\n");
 
-	//USART3_OFF;
-  /*my_m = (my_message *)malloc(sizeof(my_message) * 30);
-  if(my_m == NULL)
-  {
-	return -1;
-  }
-
-  for(i = 0; i < NUM_OF_PACKET_PER_BLOCK; i++)
-  {
-  	my_point->index = 0;
-		memset(&(my_point->m), 0, sizeof(Message));
-		LOS_ListInit(&(my_point->my_list));
-		my_point++;
-  }
-
-  my_point = my_m;*/
   
 #if 1
   while(1)
@@ -165,13 +116,9 @@ spi_flash_config();
 		  __set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);
 #if 1	  
 		  HAL_NVIC_DisableIRQ(SysTick_IRQn);
-
-		  HAL_TIM_Base_DeInit(&htim2);
-		  HAL_TIM_Base_DeInit(&htim4);
 	  
 		  HAL_CAN_MspDeInit(&hcan1);
-		  HAL_UART_MspDeInit(&huart2);
-		  HAL_UART_MspDeInit(&huart3);
+		  HAL_UART_MspDeInit(&UartHandle);
   		if (HAL_SPI_DeInit(&SpiHandle) != HAL_OK)
   		{
     		Error_Handler();
@@ -183,7 +130,7 @@ spi_flash_config();
 				NVIC->ICPR[i] = 0xFFFFFFFF;
 		  }			
 		  LED_GPIO_DeConfig();
-			HAL_RCC_DeInit();
+		  HAL_RCC_DeInit();
 		  SysTick->CTRL = 0;
 		  SysTick->LOAD = 0;
 		  SysTick->VAL = 0;			
@@ -207,22 +154,6 @@ spi_flash_config();
 
   }
 #endif
-	
-#if 0	
-extern void delay_1000ms(void);
-  while(1)
-	{
-		LED1_ON;
-		LED2_ON;
-		LED3_ON;
-		delay_1000ms();
-		LED1_OFF;
-		LED2_OFF;
-		LED3_OFF;
-		delay_1000ms();	
-	}
-	
-#endif	
 }
 /**
   * @brief  System Clock Configuration

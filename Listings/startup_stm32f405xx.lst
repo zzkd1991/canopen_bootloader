@@ -820,10 +820,9 @@ Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=..\output\startup_stm32f405xx.d -o..\output\startup_stm32f405xx
 .o -I.\RTE\_bootloader -ID:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.12.0\Drivers\
 CMSIS\Device\ST\STM32F4xx\Include -ID:\Keil_v5\ARM\CMSIS\Include --predefine="_
-_EVAL SETA 1" --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SE
-TA 523" --predefine="STM32F405xx SETA 1" --list=..\listings\startup_stm32f405xx
-.lst ..\Libraries\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f
-405xx.s
+_MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 523" --predefine="STM32F4
+05xx SETA 1" --list=..\listings\startup_stm32f405xx.lst ..\Libraries\CMSIS\Devi
+ce\ST\STM32F4xx\Source\Templates\arm\startup_stm32f405xx.s
 
 
 
@@ -2199,4 +2198,4 @@ es\arm\startup_stm32f405xx.s
 es\arm\startup_stm32f405xx.s
 Comment: __main used once
 2 symbols
-442 symbols in table
+441 symbols in table

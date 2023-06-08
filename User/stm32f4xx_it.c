@@ -38,7 +38,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_it.h"
-#include "./usart/bsp_debug_usart.h"
+#include "usart.h"
 
 
 /** @addtogroup STM32F4xx_HAL_Examples
@@ -156,23 +156,10 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
 	extern void TimingDelay_Increment(void);
-	//extern int lvdt_report_button;
-	//extern int deviceid_report_button;
-	extern int wait_flag;
-	//extern void report_device_id(void);
 	extern __IO int TimingDelay3;
 
   HAL_IncTick();
 	TimingDelay_Increment();
-	/*if(lvdt_report_button == 1)
-	{
-		report_lvdt_loaction();
-	}
-	
-	if(deviceid_report_button == 1)
-	{
-		report_device_id();
-	}*/
 	
 }
 
@@ -183,14 +170,14 @@ void delay_1000ms(void)
 	TimingDelay3 = 10000;
 }
 
-void USART3_IRQHandler(void)
+void UART2_IRQHandler(void)
 {
-  extern UART_HandleTypeDef huart3;
+  extern UART_HandleTypeDef UartHandle;
 
   /* USER CODE BEGIN USART1_IRQn 0 */
 
   /* USER CODE END USART1_IRQn 0 */
-  HAL_UART_IRQHandler(&huart3);
+  HAL_UART_IRQHandler(&UartHandle);
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */
@@ -213,21 +200,6 @@ void CAN1_RX0_IRQHandler(void)
   /* USER CODE END CAN1_RX0_IRQn 1 */
 }
 #endif
-/**
-  * @brief This function handles USART2 global interrupt.
-  */
-void USART2_IRQHandler(void)
-{
-  extern UART_HandleTypeDef huart2;
-
-  /* USER CODE BEGIN USART1_IRQn 0 */
-
-  /* USER CODE END USART1_IRQn 0 */
-  HAL_UART_IRQHandler(&huart2);
-  /* USER CODE BEGIN USART1_IRQn 1 */
-
-  /* USER CODE END USART1_IRQn 1 */
-}
 
 void CAN1_RX0_IRQHandler(void)
 {
@@ -245,26 +217,6 @@ void CAN2_TX_IRQHandler(void)
 {
 	extern CAN_HandleTypeDef hcan1;
 	HAL_CAN_IRQHandler(&hcan1);
-}
-
-void TIM2_IRQHandler(void)
-{
-	extern TIM_HandleTypeDef htim2;
-
-  /* USER CODE BEGIN TIM2_IRQn 0 */
-
-  /* USER CODE END TIM2_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim2);
-  /* USER CODE BEGIN TIM2_IRQn 1 */
-
-  /* USER CODE END TIM2_IRQn 1 */
-}
-
-void TIM4_IRQHandler(void)
-{
-	extern TIM_HandleTypeDef htim4;
-
-	HAL_TIM_IRQHandler(&htim4);
 }
 
 

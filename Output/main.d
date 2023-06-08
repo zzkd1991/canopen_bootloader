@@ -70,14 +70,11 @@
 ..\output\main.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 ..\output\main.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\output\main.o: ..\User\inc\bsp_SysTick.h
-..\output\main.o: ..\User\./usart/bsp_debug_usart.h
+..\output\main.o: ..\User\usart.h
 ..\output\main.o: ..\User\inc\internalFlash.h
 ..\output\main.o: ..\User\inc\common.h
 ..\output\main.o: ..\User\inc\menu.h
 ..\output\main.o: ..\User\bsp_can.h
-..\output\main.o: ..\User\usart.h
-..\output\main.o: ..\User\tim.h
-..\output\main.o: ..\User\gpio.h
 ..\output\main.o: ..\User\spi_flash.h
 ..\output\main.o: ..\User\recover.h
 ..\output\main.o: ..\User\can_queue.h
@@ -85,9 +82,5 @@
 ..\output\main.o: ..\User\block_download.h
 ..\output\main.o: ..\User\message_list.h
 ..\output\main.o: ..\User\los_typedef.h
-..\output\main.o: ..\User\my_canopen\my_canopen_adapter.h
-..\output\main.o: ..\User\my_canopen\applicfg.h
-..\output\main.o: ..\User\my_canopen\objdictdef.h
-..\output\main.o: ..\User\my_canopen\value_conversion.h
 ..\output\main.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ..\output\main.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

@@ -11,15 +11,11 @@
 
 
 uint32_t file_length = 0;
-uint32_t server_received_packet_num = 0;
-
 uint8_t bin_received_file[(NUM_OF_PACKET_PER_BLOCK + 1) * 7] = {0};
 uint8_t bin_received_file_last[NUM_OF_PACKET_PER_BLOCK * 7] = {0};
 uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1] = {0};
 uint8_t *bin_point = NULL;
 uint8_t *bin_point_last = NULL;
-uint32_t first_packet_received = 0;
-uint32_t total_packet_num = 0;
 uint32_t total_section_num = 0;
 uint32_t left_packet_num = 0;
 uint32_t left_byte_num = 0;
@@ -33,7 +29,6 @@ uint32_t last_packet_arrived_tick = 0;
 Message current_packet[NUM_OF_PACKET_PER_BLOCK + 1] = {0};
 uint64_t block_total_received_byte = 0;
 uint8_t block_cur_percent_inc = 0;
-uint32_t my_received_crc = 0;
 
 
 int packet_index_preservation(int index, int last_packet_flag)
@@ -462,7 +457,6 @@ int new_received_last_section(Message *m)
 		cal_crc = calc_crc32(0, &bin_received_file_last[7], (left_packet_num * 7));
 	}
 	received_crc = (bin_received_file_last[0] << 24) | (bin_received_file_last[1] << 16) | (bin_received_file_last[2] << 8) | bin_received_file_last[3];
-	my_received_crc = received_crc;
 
 
 	if(cal_crc == received_crc)
@@ -539,7 +533,6 @@ int second_procedure = 0;
 int pack_dispatch(Message *m)
 {
 	int ret = 0;
-	uint32_t image_length = 0;
 	
 	if(first_procedure == 1)
 	{
@@ -633,143 +626,4 @@ void form_ack_message(Message *ack_message, uint16_t index, uint8_t subindex, ui
 	ack_message->data[7] = (error_section & 0x0000FF);
 
 }
-
-LOS_DL_LIST canmessage_head;
-
-int form_canmessage_packet(Message *m)
-{
-
-	int c = 0;
-	int packet_index = 0;
-	int found_flag = 0;
-	LOS_DL_LIST *item;
-	uint32_t received_crc = 0;
-	uint32_t cal_crc = 0;
-	extern my_message *my_point;
-	Message ack_message;
-	int i = 0;
-	my_message *temp_message_point = NULL;
-	
-	c = (m->data[0] & 0x80) >> 7;
-	packet_index = (m->data[0]) & 0x1F;
-	memcpy(&(my_point->m), m, sizeof(*m));
-	my_point->index = packet_index;
-	LOS_ListAdd(&canmessage_head, &(my_point->my_list));	
-	my_point++;
-
-	if(c == 1)//最后一个数据包
-	{
-		int packet_num = 0;
-		packet_num = get_canmessage_num();
-		if(packet_num != NUM_OF_PACKET_PER_BLOCK)
-		{
-			return 1;
-		}
-		else
-		{
-			for(i = 0; i < 31; i++)
-			{
-				LOS_DL_LIST_FOR_EACH(item, &canmessage_head)
-				{
-					temp_message_point = LOS_DL_LIST_ENTRY(item, my_message, my_list);
-					if(temp_message_point->index > 30)
-					{
-						return 1;
-					}
-
-					if(temp_message_point->index == i)
-					{
-						found_flag = 1;
-						memcpy(bin_point, &(temp_message_point->m.data[1]), 7);
-						bin_point += 7;	
-					}
-				}
-
-				if(found_flag == 0)
-				{
-					return 1;
-				}
-				else
-				{
-					found_flag = 1;
-				}
-			}
-			
-			cal_crc = calc_crc32(0, &bin_received_file[7], sizeof(bin_received_file) - 7);
-			
-			received_crc = (bin_received_file[0] << 24) | (bin_received_file[1] << 16 | (bin_received_file[2] << 8) | bin_received_file[3]);
-			if(received_crc == cal_crc)
-			{
-				
-				if(1 == FLASH_If_Write(&dest_address, &bin_received_file[7], NUM_OF_PACKET_PER_BLOCK * 7))
-				{
-					//发送写入FLASH错误报文
-					printf("%s, %d\n", __FUNCTION__, __LINE__);
-					form_ack_message(&ack_message, 0x02, 0x01, 0xFE, received_section_num, 0x60);
-					
-					if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
-					{
-						Error_Handler();
-					}
-					
-					return -1;
-					
-				}
-				else
-				{
-					//发送正确ACK报文
-					form_ack_message(&ack_message, 0x02, 0x01, 0, 0, 0x60);
-
-					if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
-					{
-						Error_Handler();
-						return -1;
-					}
-
-					block_total_received_byte += NUM_OF_PACKET_PER_BLOCK * 7;
-					block_cur_percent_inc = (uint8_t)(((float)block_total_received_byte / file_length) * 100);
-					ack_message.data[0] = 0x60;
-					ack_message.data[1] = 0x00;
-					ack_message.data[2] = 0x01;
-					ack_message.data[3] = 0x0a;//发送百分比
-					ack_message.data[4] = block_cur_percent_inc;
-					if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
-					{
-						Error_Handler();
-					}
-					
-				}
-			}
-			else
-			{
-				form_ack_message(&ack_message, 0x02, 0x01, 0xFF, received_section_num, 0x60);
-
-				if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
-				{
-					Error_Handler();
-				}
-
-				return 1;
-			}
-			
-			return 0;
-		}
-	}
-
-	return 0;
-
-}
-
-int get_canmessage_num(void)
-{
-	int packet_num = 0;
-	LOS_DL_LIST *item;
-	LOS_DL_LIST_FOR_EACH(item, &canmessage_head)
-	{
-		packet_num++;
-	}
-
-	return packet_num;
-}
-
 

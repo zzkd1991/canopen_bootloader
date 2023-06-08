@@ -71,4 +71,4 @@
 ..\output\stm32f4xx_it.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ..\output\stm32f4xx_it.o: ..\User\inc\bsp_SysTick.h
 ..\output\stm32f4xx_it.o: ..\User\stm32f4xx_it.h
-..\output\stm32f4xx_it.o: ..\User\./usart/bsp_debug_usart.h
+..\output\stm32f4xx_it.o: ..\User\usart.h

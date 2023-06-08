@@ -166,7 +166,6 @@ void GetUpperComputerInfoAndWait3S(int* flag)
   extern __IO uint32_t TimingDelay1;
   extern uint32_t enter_bootloader_flag;
   extern void Can_data_Process(void);
-  extern void report_node_info(void);
 	extern int cnt;
   extern uint32_t id1;
 	extern uint32_t master_nodeid;
@@ -189,7 +188,6 @@ void GetUpperComputerInfoAndWait3S(int* flag)
   {
 		
   	Can_data_Process();
-	report_node_info();
     if (enter_bootloader_flag == 0xff) 
 	{
 		*flag = 1;
@@ -231,10 +229,10 @@ void GetUpperComputerInfoAndWait3S(int* flag)
   */
 void SerialPutChar(uint8_t c)
 {
-  extern UART_HandleTypeDef huart3;
+  extern UART_HandleTypeDef UartHandle;;
   HAL_StatusTypeDef result;
 
-  result = HAL_UART_Transmit(&huart3, &c, sizeof(c), 1000);
+  result = HAL_UART_Transmit(&UartHandle, &c, sizeof(c), 1000);
   
   if(result == HAL_OK);
   else if(result == HAL_TIMEOUT)
