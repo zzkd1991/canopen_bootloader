@@ -68,8 +68,21 @@ int main(void)
     ClearCanQueue();
     dest_address = APPLICATION_ADDRESS;
     printf("hello world\n");
+		
+		Message m = {0};
+		
+		uint8_t message_content[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+		m.cob_id = 0x0a;
+		m.len = 8;
+		m.rtr = 0;
+		memcpy(m.data, message_content, 8);
   
-#if 1
+		while(1)
+		{
+			Can_Send(NULL, &m);
+		}
+		
+#if 0
 		while(1)
 		{	
 			Can_data_Process();
