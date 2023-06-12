@@ -11,6 +11,8 @@
 void packet_value_reset_flow(void);
 int pack_dispatch(Message *m);
 void form_ack_message(Message *ack_message, uint16_t index, uint8_t subindex, uint8_t ackcode, uint32_t error_section, uint8_t command_code);
+int NEW_Can_Message_Dispatch(Message *m);
+
 
 typedef enum
 {

@@ -86,8 +86,6 @@ void prepare_flow(Message *m)
 			respond_message.data[i] = 0x00;
 		}
 
-
-
 		if(CAN_SEND_OK != Can_Send(NULL, &respond_message))
 		{
 			Error_Handler();

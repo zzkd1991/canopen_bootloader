@@ -1,4 +1,5 @@
 #include "can_queue.h"
+#include "block_download.h"
 #include <string.h>
 
 struct _CANQueue CANQueueRx;
@@ -157,7 +158,6 @@ void Can_data_Process(void)
 {
 	uint16_t head;
 	Message RxMessage;
-	extern int NEW_Can_Message_Dispatch(Message *m);
 	
 	head = CANQueueRx.front;
 	

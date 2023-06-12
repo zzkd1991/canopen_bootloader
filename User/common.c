@@ -176,7 +176,7 @@ void GetUpperComputerInfoAndWait3S(int* flag)
 		Can_data_Process();
 		if (enter_bootloader_flag == enter_bootloader && cnt > 0)
 		{
-			*flag = 1;
+			*flag = load_new_procedure;
 			break;	
 		}
 		if(TimingDelay1 >= 100000)//1s
@@ -186,7 +186,7 @@ void GetUpperComputerInfoAndWait3S(int* flag)
 		   	printf("%d s\n", cnt);
 		   	if(cnt == 0 && enter_bootloader_flag == not_enter_bootloader)
 		   	{
-		   		flag = 0;
+		   		*flag = load_old_procedure;
 		   		break;
 		   	}
 		}

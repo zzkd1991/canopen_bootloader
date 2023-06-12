@@ -68,8 +68,6 @@ int packet_index_preservation(int index, int last_packet_flag)
 				return packet_index_num_insufficent;
 			}
 		}
-
-		return 0;
 	}
 }
 
@@ -193,9 +191,10 @@ int new_receive_block_packet(Message *m)
 		}
 		else if(result == packet_index_num_insufficent)//收到最后一个报文，但报文数量不足。
 		{
-			if(HAL_GetTick() - packet_status_info.last_packet_arrived_tick >= 2000)//等待20ms
+			while(HAL_GetTick() - packet_status_info.last_packet_arrived_tick < 500);
+			if(HAL_GetTick() - packet_status_info.last_packet_arrived_tick >= 500)//等待500ms
 			{
-				if(packet_status_info.current_index !=  (NUM_OF_PACKET_PER_BLOCK + 1))//20ms后仍然没有收到全部报文，向上位机报错
+				if(packet_status_info.current_index !=  (NUM_OF_PACKET_PER_BLOCK + 1))//500ms后仍然没有收到全部报文，向上位机报错
 				{
 					//发送写入FLASH错误报文
 					printf("%s, %d\n", __FUNCTION__, __LINE__);
@@ -250,13 +249,13 @@ int new_receive_block_packet(Message *m)
 		bin_point += 7;
 	}
 	
-	cal_crc = calc_crc32(0, &bin_received_file[7], sizeof(bin_received_file) - 7);
+	cal_crc = calc_crc32(0, &bin_received_file[8], sizeof(bin_received_file) - 8);
 
-	received_crc = (bin_received_file[0] << 24) | (bin_received_file[1] << 16) | (bin_received_file[2] << 8) | bin_received_file[3];
+	received_crc = (bin_received_file[1] << 24) | (bin_received_file[2] << 16) | (bin_received_file[3] << 8) | bin_received_file[4];
 	
 	if(cal_crc == received_crc)
 	{
-		if(write_flash_error == FLASH_If_Write(&packet_status_info.dest_address, &bin_received_file[7], NUM_OF_PACKET_PER_BLOCK * 7))
+		if(write_flash_error == FLASH_If_Write(&packet_status_info.dest_address, &bin_received_file[8], NUM_OF_PACKET_PER_BLOCK * 7))
 		{
 			//发送写入FLASH错误报文
 			printf("%s, %d\n", __FUNCTION__, __LINE__);
@@ -352,7 +351,8 @@ int new_received_last_section(Message *m)
 		}
 		else if(result == 1)//收到最后一个报文， 但报文数量不足。
 		{
-			if(HAL_GetTick() - packet_status_info.last_packet_arrived_tick >= 2000)
+			while(HAL_GetTick() - packet_status_info.last_packet_arrived_tick < 500);
+			if(HAL_GetTick() - packet_status_info.last_packet_arrived_tick >= 500)
 			{
 				if(packet_status_info.left_byte_num == 0)
 				{
@@ -436,13 +436,13 @@ int new_received_last_section(Message *m)
 
 	if(packet_status_info.left_byte_num != 0)
 	{
-		cal_crc = calc_crc32(0, &bin_received_file_last[7], (packet_status_info.left_packet_num + 1) * 7);
+		cal_crc = calc_crc32(0, &bin_received_file_last[8], (packet_status_info.left_packet_num + 1) * 7);
 	}
 	else
 	{
-		cal_crc = calc_crc32(0, &bin_received_file_last[7], (packet_status_info.left_packet_num * 7));
+		cal_crc = calc_crc32(0, &bin_received_file_last[8], (packet_status_info.left_packet_num * 7));
 	}
-	received_crc = (bin_received_file_last[0] << 24) | (bin_received_file_last[1] << 16) | (bin_received_file_last[2] << 8) | bin_received_file_last[3];
+	received_crc = (bin_received_file_last[1] << 24) | (bin_received_file_last[2] << 16) | (bin_received_file_last[3] << 8) | bin_received_file_last[4];
 
 
 	if(cal_crc == received_crc)
