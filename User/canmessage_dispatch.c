@@ -12,7 +12,6 @@ uint64_t bin_file_length = 0;
 uint16_t deviceid_array[20] = {0};
 int cnt = 10;
 uint32_t block_received_packet_num = 0;
-extern uint32_t enter_bootloader_flag;
 uint16_t prepare_flow_flag = 1;
 
 

@@ -1,5 +1,6 @@
 #include "internalFlash.h"
 #include <stdio.h>
+#include <string.h>
 
 #define DATA_32   ((uint32_t)0x87564321)
 
@@ -53,7 +54,6 @@ uint32_t FLASH_If_Erase(uint32_t StartSector)
 {
 #if 1
 	static FLASH_EraseInitTypeDef EraseInitStruct;
-//	uint32_t UserStartSecotr = FLASH_SECTOR_1, i = 0;
 	uint32_t SECTORError = 0;
 	uint32_t FirstSector = 0;
 	uint32_t NbOfSectors = 0;
@@ -69,10 +69,10 @@ uint32_t FLASH_If_Erase(uint32_t StartSector)
 
 	if(HAL_FLASHEx_Erase(&EraseInitStruct, &SECTORError) != HAL_OK)
 	{
-		return 1;
+		return erase_flash_error;
 	}
 
-	return 0;
+	return erase_flash_ok;
 #else
 	extern uint64_t bin_file_length;
 	int sector_num = 0;
@@ -184,20 +184,19 @@ uint32_t FLASH_If_Write(__IO uint32_t *FlashAddress, uint8_t *Data, uint32_t Dat
 		
 		if(status != HAL_OK)
 		{
-			return 1;
+			return write_flash_error;
 		}
 		
 		FLASH->CR &= (~FLASH_CR_PG);
 		
 		if(*(uint8_t *)*FlashAddress != *(uint8_t *)(Data + i))
 		{
-			printf("22222");
-			return 1;
+			return write_flash_error;
 		}
 		*FlashAddress += 1;
 	}
 
-	return 0;
+	return write_flash_ok;
 }
 
 

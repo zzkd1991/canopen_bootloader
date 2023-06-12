@@ -30,6 +30,7 @@
 #include "main.h"
 #include "stm32f4xx.h"
 #include "block_download.h"
+#include "can_queue.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -166,7 +167,6 @@ void GetUpperComputerInfoAndWait3S(int* flag)
 {
 	extern __IO uint32_t TimingDelay1;
 	extern uint32_t enter_bootloader_flag;
-	extern void Can_data_Process(void);
 	extern int cnt;
 
 	/* Waiting for user input */

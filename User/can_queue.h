@@ -24,7 +24,7 @@ void SetHeadCanQueueRx(uint16_t head);
 void SetHeadCanQueueTx(uint16_t head);
 uint8_t GetCanQueueRx(uint16_t head, Message *element);
 uint8_t GetCanQueueTx(uint16_t head, Message *element);
-void Can_data_process(void);
+void Can_data_Process(void);
 void ClearCanTxQueue(void);
 void ClearCanRxQueue(void);
 

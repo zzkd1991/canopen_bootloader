@@ -17,7 +17,7 @@ int prv_spi2inner_copy(uint32_t srcAddr, int32_t imgLen)
 
 	ret = FLASH_If_Erase(0);
 
-	if(0 != ret)
+	if(erase_flash_ok != ret)
 	{
 		return OTA_ERRNO_INNER_FLASH_WRITE;
 	}
@@ -30,7 +30,7 @@ int prv_spi2inner_copy(uint32_t srcAddr, int32_t imgLen)
 
 		srcAddr += copyLen;
 		ret = FLASH_If_Write(&destAddr, (uint8_t *)buf, copyLen);
-		if(ret != 0)
+		if(ret != write_flash_ok)
 		{
 			return OTA_ERRNO_INNER_FLASH_WRITE;
 		}

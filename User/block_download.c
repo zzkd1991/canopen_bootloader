@@ -41,7 +41,7 @@ int packet_index_preservation(int index, int last_packet_flag)
 
 	if(index < 0 || index > NUM_OF_PACKET_PER_BLOCK)
 	{
-		return -1;
+		return packet_index_range_error;
 	}
 	else
 	{
@@ -51,7 +51,7 @@ int packet_index_preservation(int index, int last_packet_flag)
 			{
 				if(index == packet_index_array[i])//已经收到该索引的数据报文
 				{
-					return -1;
+					return packet_index_repeat;
 				}
 			}
 
@@ -64,7 +64,7 @@ int packet_index_preservation(int index, int last_packet_flag)
 			{
 				if(index == packet_index_array[i])
 				{
-					return -1;
+					return packet_index_repeat;
 				}
 			}
 
@@ -73,12 +73,12 @@ int packet_index_preservation(int index, int last_packet_flag)
 			
 			if(current_index == (NUM_OF_PACKET_PER_BLOCK + 1))
 			{
-				return 0;
+				return packet_index_ok;
 			}
 			else
 			{
 				last_packet_arrived_tick = uwTick;
-				return 1;
+				return packet_index_num_insufficent;
 			}
 		}
 
@@ -93,7 +93,7 @@ int packet_index_preservation_last(int index, int last_packet_flag)
 
 	if((index < 0) || (index > (left_packet_num + 2) * 7))
 	{
-		return -1;
+		return packet_index_range_error;
 	}
 	else
 	{
@@ -103,7 +103,7 @@ int packet_index_preservation_last(int index, int last_packet_flag)
 			{
 				if(index == packet_index_array[i])//已经收到该索引的数据报文
 				{
-					return -1;
+					return packet_index_repeat;
 				}
 			}
 
@@ -116,7 +116,7 @@ int packet_index_preservation_last(int index, int last_packet_flag)
 			{
 				if(index == packet_index_array[i])
 				{
-					return -1;
+					return packet_index_repeat;
 				}
 			}
 
@@ -127,29 +127,29 @@ int packet_index_preservation_last(int index, int last_packet_flag)
 			{
 				if(current_index == (left_packet_num + 1))
 				{
-					return 0;
+					return packet_index_ok;
 				}
 				else
 				{
 					last_packet_arrived_tick = uwTick;
-					return 1;
+					return packet_index_num_insufficent;
 				}
 			}
 			else if(left_byte_num != 0)
 			{
 				if(current_index == (left_packet_num + 2))
 				{
-					return 0;
+					return packet_index_ok;
 				}
 				else
 				{
 					last_packet_arrived_tick = uwTick;
-					return 1;
+					return packet_index_num_insufficent;
 				}
 			}
 		}
 
-		return 0;
+		return packet_index_ok;
 	}
 }
 
@@ -187,7 +187,7 @@ int new_receive_block_packet(Message *m)
 	//while(1)//直到将块中所有CAN报文内容和索引存入到数组中，才退出
 	{
 	 	result = packet_index_preservation(packet_index, c);//将接收报文索引存入数值
-		if(result == -1)
+		if(result == packet_index_range_error)
 		{
 			//发送接收报文索引错误报文
 			printf("%s, %d\n", __FUNCTION__, __LINE__);
@@ -198,16 +198,13 @@ int new_receive_block_packet(Message *m)
 			{
 				Error_Handler();
 			}		
-			return -1;
+			return packet_index_error;
 		}
-		else if(result == 0)
+		else if(result == packet_index_ok)
 		{
 			memcpy(&current_packet[current_index - 1], m, sizeof(*m));
-			//continue;
-			//return 0;
-			//break;
 		}
-		else if(result == 1)//收到最后一个报文，但报文数量不足。
+		else if(result == packet_index_num_insufficent)//收到最后一个报文，但报文数量不足。
 		{
 			if(HAL_GetTick() - last_packet_arrived_tick >= 2000)//等待20ms
 			{
@@ -223,7 +220,7 @@ int new_receive_block_packet(Message *m)
 						Error_Handler();
 					}
 					
-					return -1;
+					return packet_num_insufficent;
 				}
 			}
 		}
@@ -232,7 +229,7 @@ int new_receive_block_packet(Message *m)
 
 	if(current_index < (NUM_OF_PACKET_PER_BLOCK + 1))
 	{
-		return 0;
+		return packet_ok;
 	}
 	else
 	{
@@ -272,7 +269,7 @@ int new_receive_block_packet(Message *m)
 	
 	if(cal_crc == received_crc)
 	{
-		if(1 == FLASH_If_Write(&dest_address, &bin_received_file[7], NUM_OF_PACKET_PER_BLOCK * 7))
+		if(write_flash_error == FLASH_If_Write(&dest_address, &bin_received_file[7], NUM_OF_PACKET_PER_BLOCK * 7))
 		{
 			//发送写入FLASH错误报文
 			printf("%s, %d\n", __FUNCTION__, __LINE__);
@@ -285,7 +282,7 @@ int new_receive_block_packet(Message *m)
 
 			received_section_num--;
 
-			return -1;
+			return packet_write_flash_error;
 		}
 		else
 		{
@@ -309,7 +306,6 @@ int new_receive_block_packet(Message *m)
 			{
 				Error_Handler();
 			}		
-			
 		}
 	}
 	else
@@ -322,10 +318,10 @@ int new_receive_block_packet(Message *m)
 		}
 
 		received_section_num--;
-		return -1;
+		return packet_crc_check_error;
 	}
 
-	return 0;
+	return packet_ok;
 
 }
 
@@ -350,7 +346,7 @@ int new_received_last_section(Message *m)
 	//while(1)
 	{
 		result = packet_index_preservation_last(packet_index, c);
-		if(result == -1)
+		if(result == packet_index_range_error)
 		{
 			//发送接收报文索引错误报文
 			printf("%s, %d\n", __FUNCTION__, __LINE__);
@@ -361,7 +357,7 @@ int new_received_last_section(Message *m)
 			{
 				Error_Handler();
 			}		
-			return -1;
+			return packet_index_error;
 		}
 		else if(result == 0)
 		{
@@ -382,7 +378,7 @@ int new_received_last_section(Message *m)
 						{
 							Error_Handler();
 						}						
-						return -1;
+						return packet_num_insufficent;
 					}
 				}
 				else if(left_byte_num != 0)
@@ -396,7 +392,7 @@ int new_received_last_section(Message *m)
 						{
 							Error_Handler();
 						}						
-						return -1;
+						return packet_num_insufficent;
 					}
 				}
 			}
@@ -473,7 +469,7 @@ int new_received_last_section(Message *m)
 		{
 			flash_write_result = FLASH_If_Write(&dest_address, &bin_received_file_last[7], (left_packet_num + 1) * 7);
 		}
-		if(1 == flash_write_result)
+		if(write_flash_error == flash_write_result)
 		{
 			//发送写入FLASH错误报文
 			//发送写入FLASH错误报文
@@ -486,7 +482,7 @@ int new_received_last_section(Message *m)
 			}
 			received_section_num--;
 
-			return -1;				
+			return packet_write_flash_error;				
 		}
 		else
 		{
@@ -513,7 +509,7 @@ int new_received_last_section(Message *m)
 				Error_Handler();
 			}
 			
-			return 0;			
+			return packet_ok;			
 		}
 	}
 	else
@@ -525,7 +521,7 @@ int new_received_last_section(Message *m)
 			Error_Handler();
 		}
 		received_section_num--;
-		return -1;	
+		return packet_crc_check_error;	
 	}
 	return 0;
 }
@@ -536,7 +532,7 @@ int pack_dispatch(Message *m)
 	
 	if(first_procedure == 1)
 	{
-		if(0 != new_receive_block_packet(m))
+		if(packet_ok != new_receive_block_packet(m))
 		{
 			packet_value_reset_flow();
 			/*get_old_image_length(OLD_IMAGE_LENGTH_ADDR, &image_length);
@@ -567,7 +563,7 @@ int pack_dispatch(Message *m)
 
 	if(second_procedure == 1)
 	{
-		if(1 == new_received_last_section(m))
+		if(packet_ok != new_received_last_section(m))
 		{
 			packet_value_reset_flow();
 			/*get_old_image_length(OLD_IMAGE_LENGTH_ADDR, &image_length);

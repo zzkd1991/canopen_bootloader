@@ -36,6 +36,18 @@
 
 #define OTA_COPY_BUF_SIZE	0x1000
 
+typedef enum
+{
+	write_flash_ok = 0,
+	write_flash_error = 1, 
+}WRITE_FLASH_STATUS;
+
+typedef enum
+{
+	erase_flash_ok = 0,
+	erase_flash_error = 1,
+}ERASE_FLASH_STATUS;
+
 int InternalFlash_Test(void);
 
 uint32_t FLASH_If_Erase(uint32_t StartSector);

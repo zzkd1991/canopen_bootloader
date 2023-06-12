@@ -24,6 +24,23 @@ typedef enum
 	load_old_procedure = 0xff,
 }LOAD_PROCEDURE_FLAG;
 
+typedef enum
+{
+	packet_index_range_error = -3,
+	packet_index_repeat = -2,
+	packet_index_num_insufficent = -1,
+	packet_index_ok = 0,
+}PACKET_INDEX_STATUS;
+
+typedef enum
+{
+	packet_index_error = -4,
+	packet_num_insufficent = -3,
+	packet_crc_check_error = -2,
+	packet_write_flash_error = -1,
+	packet_ok = 0,
+}HANDLE_RECEIVED_PACKET_STATUS;
+
 #endif
 
 
