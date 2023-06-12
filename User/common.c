@@ -29,6 +29,7 @@
 #include "bsp_can.h"
 #include "main.h"
 #include "stm32f4xx.h"
+#include "block_download.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -163,61 +164,33 @@ uint32_t Str2Int(uint8_t *inputstr, int32_t *intnum)
   */
 void GetUpperComputerInfoAndWait3S(int* flag)
 {
-  extern __IO uint32_t TimingDelay1;
-  extern uint32_t enter_bootloader_flag;
-  extern void Can_data_Process(void);
+	extern __IO uint32_t TimingDelay1;
+	extern uint32_t enter_bootloader_flag;
+	extern void Can_data_Process(void);
 	extern int cnt;
-  extern uint32_t id1;
-	extern uint32_t master_nodeid;
-	extern uint32_t slave_nodeid;
-  Message m;
-  memset(&m, 0, sizeof(m));
-  m.len = 8;
-  m.rtr = CAN_RTR_DATA;
-  //m.cob_id = 0x5C0;
-	//m.cob_id = id1;
-  m.cob_id = master_nodeid;
-  m.data[0] = 0x60;
-  m.data[1] = 0x0F;
-  m.data[2] = 0x12;
-  m.data[3] = 0x03;
 
-
-  /* Waiting for user input */
-  while (1)
-  {
-		
-  	Can_data_Process();
-    if (enter_bootloader_flag == 0xff) 
+	/* Waiting for user input */
+	while (1)
 	{
-		*flag = 1;
-		break;	
+		
+		Can_data_Process();
+		if (enter_bootloader_flag == enter_bootloader && cnt > 0)
+		{
+			*flag = 1;
+			break;	
+		}
+		if(TimingDelay1 >= 100000)//1s
+		{	
+		   	TimingDelay1 = 0;		   
+		   	cnt--;
+		   	printf("%d s\n", cnt);
+		   	if(cnt == 0 && enter_bootloader_flag == not_enter_bootloader)
+		   	{
+		   		flag = 0;
+		   		break;
+		   	}
+		}
 	}
-	if(TimingDelay1 >= 100000)//1s
-	{	
-	   	TimingDelay1 = 0;
-	   	memcpy(&m.data[4], &cnt, sizeof(cnt));
-	   	if(CAN_SEND_OK != Can_Send(NULL, &m))
-	   	{
-	   		//Error_Handler();
-	   	}
-	   
-	   	cnt--;
-	   	printf("%d s\n", cnt);
-	   	if(cnt == 0)
-	   	{
-	     	/*m.data[1] = 0x00;
-	   		m.data[2] = 0x01;
-	   		m.data[3] = 0x09;
-	   		if(CAN_SEND_OK != Can_Send(NULL, &m))
-	   		{
-	   			Error_Handler();
-	   		}*/
-	   		//printf("enter app programme\n");
-	   		break;
-	   	}
-	}
-  }
 }
 
 

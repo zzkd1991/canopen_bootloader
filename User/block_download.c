@@ -584,7 +584,7 @@ int pack_dispatch(Message *m)
 
 		if(received_section_num == total_section_num + 1)
 		{
-			int ret = OTA_ERRNO_OK;
+			//int ret = OTA_ERRNO_OK;
 
 			/*ret = store_old_image_length(OLD_IMAGE_LENGTH_ADDR, bin_file_length);
 			if(ret != OTA_ERRNO_OK)

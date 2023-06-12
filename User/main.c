@@ -43,7 +43,7 @@ uint32_t device_id;
 int main(void)
 {
     int flag = 0;
-    //HAL_Init();        
+	int i = 0;	
     SystemClock_Config();
     SysTick_Init();
     FLASH_If_Init();
@@ -69,48 +69,26 @@ int main(void)
     dest_address = APPLICATION_ADDRESS;
     printf("hello world\n");
 		
-		Message m = {0};
-		
-		uint8_t message_content[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-		m.cob_id = 0x0a;
-		m.len = 8;
-		m.rtr = 0;
-		memcpy(m.data, message_content, 8);
-  
-		while(1)
-		{
-			Can_Send(NULL, &m);
-		}
-		
-#if 0
+#if 1
 		while(1)
 		{	
 			Can_data_Process();
-			if(enter_bootloader_flag == 0xff)
-			{
-				//report_node_info();		
-			}
-			if(enter_bootloader_flag != 0xff)
+			if(enter_bootloader_flag == not_enter_bootloader)
 			{
 				GetUpperComputerInfoAndWait3S(&flag);		
 			}
-			if(flag == 1)//进入bootloader模式
+			if(flag == load_new_procedure)
 			{
 				Main_Menu();
 			}
-			if(cnt == 0)
+			else if(flag == load_old_procedure)
 			{
 				sp = (uint32_t *)APPLICATION_ADDRESS;
-				//printf("*sp %x\n", *sp);
 				//没有进入bootloader模式，直接引导主程序
 				if(((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000) == 0x20000000)//检查栈顶地址是否合法
 				{
 					JumpAddress = *(__IO uint32_t *)(APPLICATION_ADDRESS + 4);
 					Jump_To_Application = (pFunction)JumpAddress;
-					//printf("Jump_To_Application %p", Jump_To_Application);
-					//printf("JumpAddress %d\n", JumpAddress);	
-					//printf("enter\n");
-					//printf("dest_address %d\n", dest_address);
 					__set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);
 		#if 1	  
 					HAL_NVIC_DisableIRQ(SysTick_IRQn);
@@ -121,7 +99,7 @@ int main(void)
 					{
 						Error_Handler();
 					}
-					int i = 0;
+
 					for(i = 0; i < 8; i++)
 					{
 						NVIC->ICER[i] = 0xFFFFFFFF;

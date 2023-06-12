@@ -7,7 +7,7 @@
 #include "crc.h"
 #include "led.h"
 
-uint32_t enter_bootloader_flag = 0;
+uint32_t enter_bootloader_flag = not_enter_bootloader;
 uint64_t bin_file_length = 0;
 uint16_t deviceid_array[20] = {0};
 int cnt = 10;
@@ -41,14 +41,14 @@ void prepare_flow(Message *m)
 		return;
 	}
 	
-	if(m->data[0] == 0x00 && m->data[1] == 0x00 && m->data[2] == 0x00 && m->data[3] == 0x00
-		&& m->data[4] == 0x00 && m->data[5] == 0x00 && m->data[6] == 0x00 && m->data[7] == 0xFF)
+	if(m->data[0] == 0xFF && m->data[1] == 0x00 && m->data[2] == 0x00 && m->data[3] == 0x00
+		&& m->data[4] == 0x00 && m->data[5] == 0x00 && m->data[6] == 0x00 && m->data[7] == 0x00)
 	{
-		respond_message.data[7] = 0xFF;
+		respond_message.data[0] = 0xFF;
 		respond_message.len = 8;
 		respond_message.rtr = CAN_RTR_DATA;
 		respond_message.cob_id = master_nodeid;		
-		for(i = 0; i < 6; i++)
+		for(i = 1; i < 7; i++)
 		{
 			respond_message.data[i] = 0x00;
 		}
@@ -57,18 +57,19 @@ void prepare_flow(Message *m)
 		{
 			Error_Handler();
 		}		
-		enter_bootloader_flag = 1;
+		enter_bootloader_flag = enter_bootloader;
 	}
 
-	if(m->data[6] == 0xFF && m->data[7] == 0xFF)
+	if(m->data[0] == 0xFF && m->data[1] == 0xFF)
 	{
-		memcpy(&file_length, m->data, 6);
+		//memcpy(&file_length, &(m->data[2]), 6);
+		file_length = m->data[2] | (m->data[3] << 8) | (m->data[4] << 16) | (m->data[5] << 24) | (m->data[6] << 32);
 		respond_message.len = 8;
 		respond_message.rtr = CAN_RTR_DATA;
 		respond_message.cob_id = master_nodeid;		
-		respond_message.data[6] = 0xFF;
-		respond_message.data[7] = 0xFF;
-		for(i = 0; i < 5; i++)
+		respond_message.data[0] = 0xFF;
+		respond_message.data[1] = 0xFF;
+		for(i = 2; i < 7; i++)
 		{
 			respond_message.data[i] = 0x00;
 		}
