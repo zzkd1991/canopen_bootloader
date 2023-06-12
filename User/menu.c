@@ -37,16 +37,16 @@
 #include "main.h"
 #include "usart.h"
 #include "spi.h"
+#include "block_download.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-int bin_receved_succeed = 0;
 pFunction Jump_To_Application;
 uint32_t JumpAddress;
 __IO uint32_t FlashProtection = 0;
-extern uint32_t dest_address;
+extern PACKET_STATUS_INFO packet_status_info;
 extern UART_HandleTypeDef UartHandle;
 
 
@@ -58,7 +58,7 @@ extern UART_HandleTypeDef UartHandle;
   */
 void Main_Menu(void)
 {	
-	if(bin_receved_succeed == 0xff)//进入bootloader模式，引导主程序
+	if(packet_status_info.bin_received_success == 0xff)//进入bootloader模式，引导主程序
 	{
 		  //HAL_NVIC_DisableIRQ(SysTick_IRQn);
 		  if(((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000) == 0x20000000)//检查栈顶地址是否合法
@@ -66,7 +66,7 @@ void Main_Menu(void)
 			  JumpAddress = *(__IO uint32_t *)(APPLICATION_ADDRESS + 4);
 			  Jump_To_Application = (pFunction)JumpAddress;
 			  printf("enter\n");
-			  //printf("dest_address %d\n", dest_address);
+			  //printf("dest_address %d\n", packet_status_info.dest_address);
 			  __set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);  
 #if 1	  
 			  HAL_NVIC_DisableIRQ(SysTick_IRQn);

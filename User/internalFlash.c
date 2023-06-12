@@ -74,7 +74,6 @@ uint32_t FLASH_If_Erase(uint32_t StartSector)
 
 	return erase_flash_ok;
 #else
-	extern uint64_t bin_file_length;
 	int sector_num = 0;
 	uint32_t SECTORError = 0;
 	
@@ -82,7 +81,7 @@ uint32_t FLASH_If_Erase(uint32_t StartSector)
 
 	UserStartSector = GetSector(APPLICATION_ADDRESS);
   
-	sector_num = bin_file_length / 0x4000;
+	//sector_num = bin_file_length / 0x4000;
 	
 	if(sector_num <= 3)
 	{

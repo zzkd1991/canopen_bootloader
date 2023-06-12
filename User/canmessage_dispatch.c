@@ -8,11 +8,18 @@
 #include "led.h"
 
 uint32_t enter_bootloader_flag = not_enter_bootloader;
-uint64_t bin_file_length = 0;
 uint16_t deviceid_array[20] = {0};
 int cnt = 10;
 uint32_t block_received_packet_num = 0;
 uint16_t prepare_flow_flag = 1;
+
+extern uint8_t bin_received_file[(NUM_OF_PACKET_PER_BLOCK + 1) * 7];
+extern uint8_t bin_received_file_last[NUM_OF_PACKET_PER_BLOCK * 7];
+extern uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1];
+extern uint8_t *bin_point;
+extern uint8_t *bin_point_last;
+
+extern PACKET_STATUS_INFO packet_status_info;
 
 
 int device_find(uint16_t id)
@@ -31,7 +38,6 @@ int device_find(uint16_t id)
 void prepare_flow(Message *m)
 {
 	extern uint32_t master_nodeid;
-	extern uint32_t file_length;
 
 	Message respond_message = {0};
 	int i = 0;
@@ -61,8 +67,15 @@ void prepare_flow(Message *m)
 
 	if(m->data[0] == 0xFF && m->data[1] == 0xFF)
 	{
-		//memcpy(&file_length, &(m->data[2]), 6);
-		file_length = m->data[2] | (m->data[3] << 8) | (m->data[4] << 16) | (m->data[5] << 24) | (m->data[6] << 32);
+		packet_status_info.file_length = m->data[2] | (m->data[3] << 8) | (m->data[4] << 16) | (m->data[5] << 24) | (m->data[6] << 32);
+		packet_status_info.total_packet_num = packet_status_info.file_length / 7;
+		packet_status_info.total_section_num = packet_status_info.total_packet_num / NUM_OF_PACKET_PER_BLOCK;
+		packet_status_info.left_byte_num = packet_status_info.file_length % 7;
+		packet_status_info.left_packet_num = packet_status_info.total_packet_num - NUM_OF_PACKET_PER_BLOCK * packet_status_info.total_section_num;
+		bin_point = &bin_received_file[0];
+		bin_point_last = &bin_received_file_last[0];
+
+		
 		respond_message.len = 8;
 		respond_message.rtr = CAN_RTR_DATA;
 		respond_message.cob_id = master_nodeid;		
@@ -72,6 +85,8 @@ void prepare_flow(Message *m)
 		{
 			respond_message.data[i] = 0x00;
 		}
+
+
 
 		if(CAN_SEND_OK != Can_Send(NULL, &respond_message))
 		{

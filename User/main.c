@@ -21,20 +21,18 @@ extern void Main_Menu(void);
 extern pFunction Jump_To_Application;
 extern void Can_data_Process(void);
 extern uint32_t JumpAddress;
-extern int bin_receved_succeed;
 extern CAN_HandleTypeDef hcan1;
 extern uint32_t id1;
 extern uint32_t enter_bootloader_flag;
 extern int cnt;
 
 
-uint32_t dest_address = 0;
 uint32_t *sp = NULL;
 extern SPI_HandleTypeDef SpiHandle;
 extern UART_HandleTypeDef UartHandle;
 extern uint32_t device_id;
 extern uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1];
-
+extern PACKET_STATUS_INFO packet_status_info;
 
 uint32_t slave_nodeid;
 uint32_t master_nodeid;
@@ -66,7 +64,7 @@ int main(void)
     led2_show_white();
     Can_Config();	
     ClearCanQueue();
-    dest_address = APPLICATION_ADDRESS;
+    packet_status_info.dest_address = APPLICATION_ADDRESS;
     printf("hello world\n");
 		
 #if 1

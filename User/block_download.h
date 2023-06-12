@@ -41,6 +41,29 @@ typedef enum
 	packet_ok = 0,
 }HANDLE_RECEIVED_PACKET_STATUS;
 
+typedef struct PACKET_STATUS_INFO_struct
+{
+	uint32_t file_length;
+	uint32_t total_packet_num;
+	uint32_t total_section_num;
+	uint32_t left_packet_num;
+	uint32_t left_byte_num;
+	uint32_t received_section_num;
+	int bin_received_succeed;
+	uint32_t dest_address;
+	uint8_t current_index;
+	uint32_t last_packet_arrived_tick;
+	uint64_t block_total_received_byte;
+	uint8_t block_cur_percent_inc;
+	int bin_received_success;
+}PACKET_STATUS_INFO;
+
+typedef struct RECEIVED_PROCEDURE_struct
+{
+	int first_procedure;
+	int second_procedure;
+}RECEIVED_PROCEDURE_INFO;
+
 #endif
 
 
