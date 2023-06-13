@@ -52,7 +52,7 @@ int main(void)
     memset(&packet_status_info.stored_area.packet_index_array[0], 0xff, sizeof(packet_status_info.stored_area.packet_index_array));
     led1_show_white();
     led2_show_white();
-    CAN_Hardware_Config(250);
+    CAN_Hardware_Config(500);
     ClearCanQueue();
     packet_status_info.dest_address = APPLICATION_ADDRESS;
 		packet_status_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;

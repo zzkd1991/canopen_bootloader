@@ -315,6 +315,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 	uint8_t my_index;
 	uint32_t flash_write_result = 0;
 	Message ack_message;
+	//uint32_t cal_crc;
 	extern uint32_t master_nodeid;
 	c = (m->data[0] & 0x80) >> 7;//是否为一个段的最后一个数据包
 	packet_index = m->data[0] & 0x1F;

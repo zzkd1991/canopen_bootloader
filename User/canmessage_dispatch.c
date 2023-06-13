@@ -85,6 +85,7 @@ int NEW_Can_Message_Dispatch(Message *m)
 	if(packet_status_info.state_machine_flag.flow_flag == prepare_flow_flag)
 	{
 		prepare_flow(m);
+		return packet_ok;
 	}
 	else
 	{
