@@ -52,7 +52,6 @@ static uint32_t GetSector(uint32_t Address)
 
 uint32_t FLASH_If_Erase(uint32_t StartSector)
 {
-#if 1
 	static FLASH_EraseInitTypeDef EraseInitStruct;
 	uint32_t SECTORError = 0;
 	uint32_t FirstSector = 0;
@@ -61,7 +60,6 @@ uint32_t FLASH_If_Erase(uint32_t StartSector)
 	FirstSector = GetSector(FLASH_USER_START_ADDR);
 	NbOfSectors = GetSector(FLASH_USER_END_ADDR) - FirstSector + 1;
 
-	//UserStartSecotr = GetSector(APPLICATION_ADDRESS);
 	EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
 	EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
 	EraseInitStruct.Sector = FirstSector;
@@ -73,107 +71,14 @@ uint32_t FLASH_If_Erase(uint32_t StartSector)
 	}
 
 	return erase_flash_ok;
-#else
-	int sector_num = 0;
-	uint32_t SECTORError = 0;
-	
-	uint32_t UserStartSector = FLASH_SECTOR_1, i = 0;
-
-	UserStartSector = GetSector(APPLICATION_ADDRESS);
-  
-	//sector_num = bin_file_length / 0x4000;
-	
-	if(sector_num <= 3)
-	{
-		sector_num = 3;
-	}
-
-	FLASH_EraseInitTypeDef EraseInitStruct;
-	
-	EraseInitStruct.TypeErase     = FLASH_TYPEERASE_SECTORS;
-	EraseInitStruct.VoltageRange  = FLASH_VOLTAGE_RANGE_3;
-	EraseInitStruct.Sector        = UserStartSector;
-	EraseInitStruct.NbSectors     = sector_num;
-	
-	if (HAL_FLASHEx_Erase(&EraseInitStruct, &SECTORError) != HAL_OK)
-	{
-		return -1;
-	}
-	//for(i = UserStartSector; i <= (sector_num + 1); i++)
-	//for(i = UserStartSector; i <= (FLASH_SECTOR_11); i++)	
-	//{
-	//	FLASH_Erase_Sector(i, VOLTAGE_RANGE_3);
-	//}
-
-	return 0;
-
-	
-
-#endif
-
 }
 
-#if 0
-uint32_t FLASH_If_Write(__IO uint32_t* FlashAddress, uint32_t *Data, uint32_t DataLenght)
-{
-#if 0
-	uint32_t i = 0;
-
-	for(i = 0; (i < DataLenght) && (*FlashAddress <= (USER_FLASH_END_ADDRESS - 4)); i++)
-	{
-		if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, *FlashAddress, *(uint32_t *)(Data + i)) == HAL_OK)
-		{
-			if(*(uint32_t *)*FlashAddress != *(uint32_t *)(Data + i))
-			{
-				//Flash content doesn't match SRAM content
-				return (2);
-			}
-
-			//Increment FLASH destination address
-			*FlashAddress += 4;
-		}
-		else
-		{
-			return (1);
-		}
-		
-	}
-
-	return 0;
-#else
-	//HAL_StatusTypeDef status = HAL_OK;
-	extern HAL_StatusTypeDef FLASH_Program_Word(uint32_t Address, uint32_t Data);
-	
-	uint32_t i = 0;
-
-	for(i = 0; (i < DataLenght) && (*FlashAddress <= (USER_FLASH_END_ADDRESS - 4)); i++)
-	{
-		if(FLASH_Program_Word(*FlashAddress, *(uint32_t *)(Data + i)) == HAL_OK)
-		{
-			if(*(uint32_t *)*FlashAddress != *(uint32_t *)(Data + i))
-			{
-				printf("2222\n");
-				return 1;
-			}
-			
-			*FlashAddress += 4;
-		}
-	}
-
-	//printf("1111");
-	return 0;
-
-#endif
-}
-#else
 uint32_t FLASH_If_Write(__IO uint32_t *FlashAddress, uint8_t *Data, uint32_t DataLength)
 {
 	extern void   FLASH_Program_Byte(uint32_t Address, uint8_t Data);
 	uint32_t i = 0;
 	
 	HAL_StatusTypeDef status = HAL_ERROR;
-	
-	//status = FLASH_WaitForLastOperation((uint32_t)50000);
 	
 	for(i = 0; (i < DataLength) && (*FlashAddress <= (USER_FLASH_END_ADDRESS - 1)); i++)
 	{
@@ -198,10 +103,6 @@ uint32_t FLASH_If_Write(__IO uint32_t *FlashAddress, uint8_t *Data, uint32_t Dat
 	return write_flash_ok;
 }
 
-
-#endif
-
-
 uint16_t FLASH_If_GetWriteProtectionStatus(void)
 {
 	extern uint16_t FLASH_OB_GetWRP(void);
@@ -221,34 +122,6 @@ uint16_t FLASH_If_GetWriteProtectionStatus(void)
 		return 0;
 	}
 }
-
-#if 0
-uint32_t FLASH_IF_DisableWriteProtection(void)
-{
-	__IO uint32_t UserStartSector = FLASH_SECTOR_1, UserWrpSectors = OB_WRP_SECTOR_1;
-
-	//Get the sector where start the user flash area
-	UserStartSector = GetSector(APPLICATION_ADDRESS);
-
-	//Mark all sectors inside the user flash area as non protected
-	UserWrpSectors = 0xFF - ((1 >> (UserStartSector/8)) - 1);
-
-	//Unlock the Option Bytes
-	HAL_FLASH_Unlock();
-
-	//Disable the write protection for all sectors inside the user flash area
-	FLASH_OB_WRPConfig(UserWrpSectors, DISABLE);
-
-	//Start the Option Bytes programming process
-	if(FLASH_OB_Launch()!= FLASH_COMPLETE)
-	{
-		return (2);
-	}
-
-	return (1);
-}
-#endif
-
 
 int FLASH_If_Read(__IO uint32_t *FlashAddr, uint8_t *buf, uint32_t DataLength)
 {

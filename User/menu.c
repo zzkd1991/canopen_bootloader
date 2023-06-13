@@ -66,7 +66,6 @@ void Main_Menu(void)
 			  JumpAddress = *(__IO uint32_t *)(APPLICATION_ADDRESS + 4);
 			  Jump_To_Application = (pFunction)JumpAddress;
 			  printf("enter\n");
-			  //printf("dest_address %d\n", packet_status_info.dest_address);
 			  __set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);  
 #if 1	  
 			  HAL_NVIC_DisableIRQ(SysTick_IRQn);

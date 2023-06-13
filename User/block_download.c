@@ -19,6 +19,8 @@ extern uint32_t id1;
 Message current_packet[NUM_OF_PACKET_PER_BLOCK + 1] = {0};
 RECEIVED_PROCEDURE_INFO received_procedure = {1, 0};
 
+uint32_t enter_flag = 0;
+
 PACKET_STATUS_INFO packet_status_info = {0};
 
 int packet_index_preservation(int index, int last_packet_flag)
@@ -68,6 +70,8 @@ int packet_index_preservation(int index, int last_packet_flag)
 				return packet_index_num_insufficent;
 			}
 		}
+
+		return packet_index_ok;
 	}
 }
 
@@ -160,8 +164,7 @@ int new_receive_block_packet(Message *m)
 	int j = 0;
 	uint8_t temp_num;
 	uint8_t my_index;
-	uint32_t cal_crc = 0;
-	uint32_t received_crc = 0;
+	//uint32_t received_crc = 0;
 	Message ack_message;
 	extern uint32_t master_nodeid;
 	c = (m->data[0] & 0x80) >> 7;//是否为一个段的最后一个数据包
@@ -169,45 +172,48 @@ int new_receive_block_packet(Message *m)
 
 	memset(&ack_message, 0, sizeof(ack_message));
 
-	//while(1)//直到将块中所有CAN报文内容和索引存入到数组中，才退出
+ 	result = packet_index_preservation(packet_index, c);//将接收报文索引存入数值
+	if(result == packet_index_range_error)
 	{
-	 	result = packet_index_preservation(packet_index, c);//将接收报文索引存入数值
-		if(result == packet_index_range_error)
+		//发送接收报文索引错误报文
+		printf("%s, %d\n", __FUNCTION__, __LINE__);
+		ClearCanRxQueue();
+		form_ack_message(&ack_message, 0x02, 0x01, 0xFD, packet_status_info.received_section_num, 0x60);
+
+		packet_status_info.packet_index_info.index_range_error++;
+
+		
+		if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
 		{
-			//发送接收报文索引错误报文
-			printf("%s, %d\n", __FUNCTION__, __LINE__);
-			ClearCanRxQueue();
-			form_ack_message(&ack_message, 0x02, 0x01, 0xFD, packet_status_info.received_section_num, 0x60);
-			
-			if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
+			Error_Handler();
+		}		
+		return packet_index_error;
+	}
+	else if(result == packet_index_ok)
+	{
+		packet_status_info.packet_index_info.index_ok++;
+		memcpy(&current_packet[packet_status_info.current_index - 1], m, sizeof(*m));
+	}
+	else if(result == packet_index_num_insufficent)//收到最后一个报文，但报文数量不足。
+	{
+		while(HAL_GetTick() - packet_status_info.last_packet_arrived_tick < 500);
+		if(HAL_GetTick() - packet_status_info.last_packet_arrived_tick >= 500)//等待500ms
+		{
+			if(packet_status_info.current_index !=  (NUM_OF_PACKET_PER_BLOCK + 1))//500ms后仍然没有收到全部报文，向上位机报错
 			{
-				Error_Handler();
-			}		
-			return packet_index_error;
-		}
-		else if(result == packet_index_ok)
-		{
-			memcpy(&current_packet[packet_status_info.current_index - 1], m, sizeof(*m));
-		}
-		else if(result == packet_index_num_insufficent)//收到最后一个报文，但报文数量不足。
-		{
-			while(HAL_GetTick() - packet_status_info.last_packet_arrived_tick < 500);
-			if(HAL_GetTick() - packet_status_info.last_packet_arrived_tick >= 500)//等待500ms
-			{
-				if(packet_status_info.current_index !=  (NUM_OF_PACKET_PER_BLOCK + 1))//500ms后仍然没有收到全部报文，向上位机报错
+				//发送写入FLASH错误报文
+				printf("%s, %d\n", __FUNCTION__, __LINE__);
+				ClearCanRxQueue();
+				form_ack_message(&ack_message, 0x02, 0x01, 0xFE, packet_status_info.received_section_num, 0x60);
+
+				packet_status_info.packet_index_info.index_num_insufficent++;
+				
+				if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
 				{
-					//发送写入FLASH错误报文
-					printf("%s, %d\n", __FUNCTION__, __LINE__);
-					ClearCanRxQueue();
-					form_ack_message(&ack_message, 0x02, 0x01, 0xFE, packet_status_info.received_section_num, 0x60);
-					
-					if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
-					{
-						Error_Handler();
-					}
-					
-					return packet_num_insufficent;
+					Error_Handler();
 				}
+				
+				return packet_num_insufficent;
 			}
 		}
 	}
@@ -249,13 +255,13 @@ int new_receive_block_packet(Message *m)
 		bin_point += 7;
 	}
 	
-	cal_crc = calc_crc32(0, &bin_received_file[8], sizeof(bin_received_file) - 8);
+	packet_status_info.cal_crc = calc_crc32(0, &bin_received_file[7], sizeof(bin_received_file) - 7);
 
-	received_crc = (bin_received_file[1] << 24) | (bin_received_file[2] << 16) | (bin_received_file[3] << 8) | bin_received_file[4];
+	packet_status_info.received_crc = (bin_received_file[3] << 24) | (bin_received_file[2] << 16) | (bin_received_file[1] << 8) | bin_received_file[0];
 	
-	if(cal_crc == received_crc)
+	if(packet_status_info.cal_crc == packet_status_info.received_crc)
 	{
-		if(write_flash_error == FLASH_If_Write(&packet_status_info.dest_address, &bin_received_file[8], NUM_OF_PACKET_PER_BLOCK * 7))
+		if(write_flash_error == FLASH_If_Write(&packet_status_info.dest_address, &bin_received_file[7], NUM_OF_PACKET_PER_BLOCK * 7))
 		{
 			//发送写入FLASH错误报文
 			printf("%s, %d\n", __FUNCTION__, __LINE__);
@@ -320,8 +326,8 @@ int new_received_last_section(Message *m)
 	int j = 0;
 	uint8_t temp_num;
 	uint8_t my_index;
-	uint32_t cal_crc = 0;
-	uint32_t received_crc = 0;
+	//uint32_t cal_crc = 0;
+	//uint32_t received_crc = 0;
 	uint32_t flash_write_result = 0;
 	Message ack_message;
 	extern uint32_t master_nodeid;
@@ -436,16 +442,16 @@ int new_received_last_section(Message *m)
 
 	if(packet_status_info.left_byte_num != 0)
 	{
-		cal_crc = calc_crc32(0, &bin_received_file_last[8], (packet_status_info.left_packet_num + 1) * 7);
+		packet_status_info.cal_crc = calc_crc32(0, &bin_received_file_last[7], (packet_status_info.left_packet_num + 1) * 7);
 	}
 	else
 	{
-		cal_crc = calc_crc32(0, &bin_received_file_last[8], (packet_status_info.left_packet_num * 7));
+		packet_status_info.cal_crc = calc_crc32(0, &bin_received_file_last[7], (packet_status_info.left_packet_num * 7));
 	}
-	received_crc = (bin_received_file_last[1] << 24) | (bin_received_file_last[2] << 16) | (bin_received_file_last[3] << 8) | bin_received_file_last[4];
+	packet_status_info.received_crc = (bin_received_file_last[3] << 24) | (bin_received_file_last[2] << 16) | (bin_received_file_last[1] << 8) | bin_received_file_last[0];
 
 
-	if(cal_crc == received_crc)
+	if(packet_status_info.cal_crc == packet_status_info.received_crc)
 	{
 		if(packet_status_info.left_byte_num == 0)
 		{
