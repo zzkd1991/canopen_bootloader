@@ -27,12 +27,11 @@
 #include "common.h"
 #include "stdio.h"
 #include "bsp_can.h"
+#include "usart.h"
 #include "main.h"
 #include "stm32f4xx.h"
 #include "block_download.h"
 #include "can_queue.h"
-
-extern PACKET_STATUS_INFO packet_status_info;
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -167,13 +166,13 @@ uint32_t Str2Int(uint8_t *inputstr, int32_t *intnum)
 void GetUpperComputerInfoAndWait3S(int* flag)
 {
 	extern __IO uint32_t TimingDelay1;
-  int cnt = 10;
+  	int cnt = 10;
 
 	/* Waiting for user input */
 	while (1)
 	{
 		
-		Can_data_Process();
+		Can_Data_Process();
 		if (packet_status_info.state_machine_flag.enter_bootloader_flag == enter_bootloader && cnt > 0)
 		{
 			*flag = load_new_procedure;
@@ -193,8 +192,6 @@ void GetUpperComputerInfoAndWait3S(int* flag)
 	}
 }
 
-
-
 /**
   * @brief  Print a character on the HyperTerminal
   * @param  c: The character to be printed
@@ -202,9 +199,7 @@ void GetUpperComputerInfoAndWait3S(int* flag)
   */
 void SerialPutChar(uint8_t c)
 {
-  extern UART_HandleTypeDef UartHandle;;
   HAL_StatusTypeDef result;
-
   result = HAL_UART_Transmit(&UartHandle, &c, sizeof(c), 1000);
   
   if(result == HAL_OK);

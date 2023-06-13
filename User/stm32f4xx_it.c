@@ -39,6 +39,7 @@
 #include "main.h"
 #include "stm32f4xx_it.h"
 #include "usart.h"
+#include "bsp_can.h"
 
 
 /** @addtogroup STM32F4xx_HAL_Examples
@@ -158,7 +159,7 @@ void SysTick_Handler(void)
 	extern void TimingDelay_Increment(void);
 	extern __IO int TimingDelay3;
 
-  HAL_IncTick();
+  	HAL_IncTick();
 	TimingDelay_Increment();
 	
 }
@@ -172,8 +173,6 @@ void delay_1000ms(void)
 
 void UART2_IRQHandler(void)
 {
-  extern UART_HandleTypeDef UartHandle;
-
   /* USER CODE BEGIN USART1_IRQn 0 */
 
   /* USER CODE END USART1_IRQn 0 */
@@ -183,39 +182,18 @@ void UART2_IRQHandler(void)
   /* USER CODE END USART1_IRQn 1 */
 }
 
-
-#if 0
-/**
-  * @brief This function handles CAN1 RX0 interrupts.
-  */
 void CAN1_RX0_IRQHandler(void)
 {
-	extern CAN_HandleTypeDef hcan1;
-  /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
-
-  /* USER CODE END CAN1_RX0_IRQn 0 */
-  HAL_CAN_IRQHandler(&hcan1);
-  /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
-
-  /* USER CODE END CAN1_RX0_IRQn 1 */
-}
-#endif
-
-void CAN1_RX0_IRQHandler(void)
-{
-	extern CAN_HandleTypeDef hcan1;
 	HAL_CAN_IRQHandler(&hcan1);
 }
 
 void CAN1_TX_IRQHandler(void)
 {
-	extern CAN_HandleTypeDef hcan1;
 	HAL_CAN_IRQHandler(&hcan1);
 }
 
 void CAN2_TX_IRQHandler(void)
 {
-	extern CAN_HandleTypeDef hcan1;
 	HAL_CAN_IRQHandler(&hcan1);
 }
 

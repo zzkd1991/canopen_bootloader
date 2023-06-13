@@ -7,9 +7,6 @@
 #include "crc.h"
 #include "led.h"
 
-extern PACKET_STATUS_INFO packet_status_info;
-
-
 int device_find(uint16_t id)
 {
 	int i = 0;
@@ -84,6 +81,7 @@ void prepare_flow(Message *m)
 
 int NEW_Can_Message_Dispatch(Message *m)
 {
+	int status;
 	if(packet_status_info.state_machine_flag.flow_flag == prepare_flow_flag)
 	{
 		prepare_flow(m);
@@ -91,10 +89,15 @@ int NEW_Can_Message_Dispatch(Message *m)
 	else
 	{
 		packet_status_info.block_received_packet_num++;
-		pack_dispatch(m);
+		status = pack_dispatch(m);
+		if(status != packet_ok)
+		{
+			Error_Handler();
+			return status;
+		}
 	}
 
-	return 0;
+	return status;
 }
 
 void report_device_id(void)

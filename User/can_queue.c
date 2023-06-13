@@ -154,7 +154,7 @@ uint8_t GetCanQueueTx(uint16_t head, Message *element)
 	}
 }
 
-void Can_data_Process(void)
+void Can_Data_Process(void)
 {
 	uint16_t head;
 	Message RxMessage;
@@ -167,8 +167,11 @@ void Can_data_Process(void)
 		SetHeadCanQueueRx(head);
 
 		//消息处理
-		//printf("%s, %d\n", __func__, __LINE__);
-		NEW_Can_Message_Dispatch(&RxMessage);
+		if(packet_ok != NEW_Can_Message_Dispatch(&RxMessage))
+		{
+			Error_Handler();
+			return;
+		}
 	}
 	else
 	{

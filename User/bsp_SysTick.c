@@ -4,7 +4,6 @@ __IO u32 TimingDelay;
 __IO u32 TimingDelay1;
 __IO u32 TimingDelay2;
 __IO u32 TimingDelay3 = 10000;
-__IO u32 TimingDelay4;
 
  
 void SysTick_Init(void)
@@ -27,7 +26,6 @@ void TimingDelay_Increment(void)
 	TimingDelay1++;
 	TimingDelay2++;
 	TimingDelay3--;
-	TimingDelay4++;
 }
 
 /*********************************************END OF FILE**********************/

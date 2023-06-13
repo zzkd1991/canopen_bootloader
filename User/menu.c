@@ -45,12 +45,6 @@
 /* Private variables ---------------------------------------------------------*/
 pFunction Jump_To_Application;
 uint32_t JumpAddress;
-__IO uint32_t FlashProtection = 0;
-extern PACKET_STATUS_INFO packet_status_info;
-extern UART_HandleTypeDef UartHandle;
-
-
-
 /**
   * @brief  Display the Main Menu on HyperTerminal
   * @param  None
@@ -72,7 +66,6 @@ void Main_Menu(void)
 				
 			  HAL_CAN_MspDeInit(&hcan1);
 			  HAL_UART_MspDeInit(&UartHandle);
-				extern SPI_HandleTypeDef SpiHandle;
 			  if (HAL_SPI_DeInit(&SpiHandle) != HAL_OK)
 			  {
 				 Error_Handler();

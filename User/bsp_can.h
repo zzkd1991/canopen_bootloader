@@ -45,7 +45,6 @@ typedef struct {
 	uint32_t BS1;			/* time segment 1*/
 }can_baudrate_config_t;
 
-
 void MX_CAN1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
@@ -55,7 +54,8 @@ void CAN1_TX_HwiCreate(void);
 
 void CAN1_RX_HwiCreate(void);
 
-void Can_Config(void);
+void CAN_Hardware_Config(uint16_t can_baud);
+
 
 /*debug*/
 

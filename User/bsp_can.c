@@ -28,25 +28,15 @@ CAN_HandleTypeDef hcan1;
 #define CAN1_TX_IRQ		CAN1_TX_IRQn + 16
 #define CAN1_RX_IRQ		CAN1_RX0_IRQn + 16
 
-// pclk1 = sysclk(72M) / 4 = 36M
-// baudrate = PCLK1(36M) / (SJW+BS1+BS2) / Prescaler
-
+// pclk1 = sysclk(168M) / 4 = 42M
+// baudrate = PCLK1(42M) / (SJW+BS1+BS2) / Prescaler
  const can_baudrate_config_t baudrate_config[] = {
- { 1000000,   4, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	900000,   4, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_6TQ },
- {	800000,   5, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	600000,   5, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_8TQ },
- {	500000,   8, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	300000,  10, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_8TQ },
- {	250000,  16, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	200000,  20, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	125000,  32, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	100000,  40, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	 50000,  80, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	 40000, 100, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	 20000, 200, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	 10000, 400, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
- {	  5000, 800, CAN_SJW_1TQ, CAN_BS1_3TQ, CAN_BS2_5TQ },
+ { 1000000,   3, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_7TQ},
+ {	500000,   6, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_7TQ},
+ {	250000,  12, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_7TQ},
+ {	125000,  24, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_7TQ},
+ {	100000,  30, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_7TQ},
+ {	 50000,  60, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_7TQ},
  };
 
 void CAN_User_Init(CAN_HandleTypeDef* hcan) //用户初始化函数
@@ -196,10 +186,7 @@ void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
 
 int Set_Can_Baud_Rate(int rate)
 {
-	//int rate_array[9] = {10000, 20000, 50000, 100000, 125000, 250000, 500000, 800000, 1000000};
-	int prescaler = 0;
 	int i = 0;
-	
 	for(i = 0; i < sizeof(baudrate_config) / sizeof(baudrate_config[0]); i++)
 	{
 		if(baudrate_config[i].bsp == rate * 1000)
@@ -414,10 +401,15 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *canHandle)
 	}
 }
 
-void Can_Config(void)
+void CAN_Config(uint16_t can_baud)
+{
+	Set_Can_Baud_Rate(can_baud);
+}
+
+void CAN_Hardware_Config(uint16_t can_baud)
 {
 	MX_CAN1_Init();
-
+	CAN_Config(can_baud);
 	CAN_User_Init(&hcan1);	//用户初始化函数
 }
 

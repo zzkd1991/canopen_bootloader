@@ -48,7 +48,9 @@
 
 #define DEBUG_UART_IRQHandler					UART2_IRQHandler
 #define DEBUG_UART_IRQ								USART2_IRQn
-	 
+	
+extern UART_HandleTypeDef UartHandle;	
+
 void DEBUG_UART_Config(void);	 
 
 #ifdef __cplusplus

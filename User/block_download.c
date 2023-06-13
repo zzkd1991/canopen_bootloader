@@ -12,7 +12,7 @@
 extern uint32_t id1;
 PACKET_STATUS_INFO packet_status_info = {0};
 
-int packet_index_preservation(int index, int last_packet_flag)
+PACKET_INDEX_STATUS packet_index_preservation(int index, int last_packet_flag)
 {
 	int i = 0;
 	extern __IO uint32_t uwTick;
@@ -64,7 +64,7 @@ int packet_index_preservation(int index, int last_packet_flag)
 	}
 }
 
-int packet_index_preservation_last(int index, int last_packet_flag)
+PACKET_INDEX_STATUS packet_index_preservation_last(int index, int last_packet_flag)
 {
 	int i = 0;
 	extern __IO uint32_t uwTick;
@@ -144,7 +144,7 @@ void packet_value_reset_flow(void)
 	memset(&packet_status_info.stored_area.current_packet[0], 0, sizeof(packet_status_info.stored_area.current_packet));
 }
 
-int new_receive_block_packet(Message *m)
+HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 {
 	int packet_index = 0;
 	int result = 0;
@@ -272,7 +272,6 @@ int new_receive_block_packet(Message *m)
 			if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
 			{
 				Error_Handler();
-				return -1;
 			}
 
 			packet_status_info.block_total_received_byte += NUM_OF_PACKET_PER_BLOCK * 7;
@@ -305,7 +304,7 @@ int new_receive_block_packet(Message *m)
 
 }
 
-int new_received_last_section(Message *m)
+HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 {
 	int packet_index = 0;
 	int result = 0;
@@ -382,7 +381,7 @@ int new_received_last_section(Message *m)
 	{
 		if((packet_status_info.current_index < packet_status_info.left_packet_num + 2))
 		{
-			return 0;
+			return packet_ok;
 		}
 		else
 		{
@@ -393,7 +392,7 @@ int new_received_last_section(Message *m)
 	{
 		if((packet_status_info.current_index < packet_status_info.left_packet_num + 1))
 		{
-			return 0;
+			return packet_ok;
 		}
 		else
 		{
@@ -472,8 +471,7 @@ int new_received_last_section(Message *m)
 			{
 				Error_Handler();
 			}
-
-
+			
 			packet_status_info.block_total_received_byte += packet_status_info.left_packet_num * 7;//发送百分比
 			packet_status_info.block_total_received_byte += packet_status_info.left_byte_num;
 			packet_status_info.block_cur_percent_inc = (uint8_t)(((float)packet_status_info.block_total_received_byte / packet_status_info.file_length) * 100);
@@ -505,11 +503,12 @@ int new_received_last_section(Message *m)
 
 int pack_dispatch(Message *m)
 {
-	int ret = 0;
+	int status;
 	
 	if(packet_status_info.receive_flow == first_procedure)
 	{
-		if(packet_ok != new_receive_block_packet(m))
+		status = new_receive_block_packet(m);
+		if(packet_ok != status)
 		{
 			packet_value_reset_flow();
 			/*get_old_image_length(OLD_IMAGE_LENGTH_ADDR, &image_length);
@@ -520,7 +519,7 @@ int pack_dispatch(Message *m)
 				return 1;
 			}*/
 			
-			return 1;
+			return status;
 		}
 
 		if(packet_status_info.current_index == (NUM_OF_PACKET_PER_BLOCK + 1))
@@ -531,15 +530,14 @@ int pack_dispatch(Message *m)
 		if(packet_status_info.received_section_num == packet_status_info.total_section_num)
 		{
 			packet_status_info.receive_flow = second_procedure;
-			//extern Message mym;
-			//memcpy(&mym, m, sizeof(*m));
-			return 0;
+			return status;
 		}
 	}
 
 	if(packet_status_info.receive_flow == second_procedure)
 	{
-		if(packet_ok != new_received_last_section(m))
+		status = new_received_last_section(m);
+		if(packet_ok != status)
 		{
 			packet_value_reset_flow();
 			/*get_old_image_length(OLD_IMAGE_LENGTH_ADDR, &image_length);
@@ -551,7 +549,7 @@ int pack_dispatch(Message *m)
 			}*/
 
 			
-			return 1;
+			return status;
 		}
 
 		if(packet_status_info.received_section_num == packet_status_info.total_section_num + 1)
@@ -575,7 +573,7 @@ int pack_dispatch(Message *m)
 			packet_status_info.bin_received_success = 0xff;
 		}
 	}
-	return 0;
+	return status;
 }
 
 

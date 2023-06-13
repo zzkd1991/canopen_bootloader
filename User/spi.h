@@ -35,6 +35,8 @@ extern "C" {
 
 /* USER CODE END Private defines */
 
+extern SPI_HandleTypeDef SpiHandle;
+
 void MX_SPI1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
