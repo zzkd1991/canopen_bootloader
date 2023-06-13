@@ -9,18 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-
-uint8_t bin_received_file[(NUM_OF_PACKET_PER_BLOCK + 1) * 7] = {0};
-uint8_t bin_received_file_last[NUM_OF_PACKET_PER_BLOCK * 7] = {0};
-uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1] = {0};
-uint8_t *bin_point = NULL;
-uint8_t *bin_point_last = NULL;
 extern uint32_t id1;
-Message current_packet[NUM_OF_PACKET_PER_BLOCK + 1] = {0};
-RECEIVED_PROCEDURE_INFO received_procedure = {1, 0};
-
-uint32_t enter_flag = 0;
-
 PACKET_STATUS_INFO packet_status_info = {0};
 
 int packet_index_preservation(int index, int last_packet_flag)
@@ -38,26 +27,26 @@ int packet_index_preservation(int index, int last_packet_flag)
 		{
 			for(i = 0 ; i < packet_status_info.current_index; i++)
 			{
-				if(index == packet_index_array[i])//已经收到该索引的数据报文
+				if(index == packet_status_info.stored_area.packet_index_array[i])//已经收到该索引的数据报文
 				{
 					return packet_index_repeat;
 				}
 			}
 
-			packet_index_array[packet_status_info.current_index] = index;
+			packet_status_info.stored_area.packet_index_array[packet_status_info.current_index] = index;
 			packet_status_info.current_index++;
 		}
 		else if(last_packet_flag == 1)
 		{
 			for(i = 0; i < packet_status_info.current_index; i++)
 			{
-				if(index == packet_index_array[i])
+				if(index == packet_status_info.stored_area.packet_index_array[i])
 				{
 					return packet_index_repeat;
 				}
 			}
 
-			packet_index_array[packet_status_info.current_index] = index;
+			packet_status_info.stored_area.packet_index_array[packet_status_info.current_index] = index;
 			packet_status_info.current_index++;
 			
 			if(packet_status_info.current_index == (NUM_OF_PACKET_PER_BLOCK + 1))
@@ -90,26 +79,26 @@ int packet_index_preservation_last(int index, int last_packet_flag)
 		{
 			for(i = 0 ; i < packet_status_info.current_index; i++)
 			{
-				if(index == packet_index_array[i])//已经收到该索引的数据报文
+				if(index == packet_status_info.stored_area.packet_index_array[i])//已经收到该索引的数据报文
 				{
 					return packet_index_repeat;
 				}
 			}
 
-			packet_index_array[packet_status_info.current_index] = index;
+			packet_status_info.stored_area.packet_index_array[packet_status_info.current_index] = index;
 			packet_status_info.current_index++;
 		}
 		else if(last_packet_flag == 1)
 		{
 			for(i = 0; i < packet_status_info.current_index; i++)
 			{
-				if(index == packet_index_array[i])
+				if(index == packet_status_info.stored_area.packet_index_array[i])
 				{
 					return packet_index_repeat;
 				}
 			}
 
-			packet_index_array[packet_status_info.current_index] = index;
+			packet_status_info.stored_area.packet_index_array[packet_status_info.current_index] = index;
 			packet_status_info.current_index++;
 
 			if(packet_status_info.left_byte_num == 0)
@@ -146,13 +135,13 @@ void packet_value_reset_flow(void)
 {
 	//uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1] = {0};
 	//uint8_t bin_received_file[(NUM_OF_PACKET_PER_BLOCK + 1) * 7] = {0};
-	memset(&bin_received_file[0], 0, sizeof(bin_received_file));
-	memset(&packet_index_array[0], 0xff, sizeof(packet_index_array));
+	memset(&packet_status_info.stored_area.bin_received_file[0], 0, sizeof(packet_status_info.stored_area.bin_received_file));
+	memset(&packet_status_info.stored_area.packet_index_array[0], 0xff, sizeof(packet_status_info.stored_area.packet_index_array));
 	packet_status_info.current_index = 0;
 	packet_status_info.last_packet_arrived_tick = 0;	
-	bin_point = &bin_received_file[0];
-	bin_point_last = &bin_received_file_last[0];
-	memset(&current_packet[0], 0, sizeof(current_packet));
+	packet_status_info.stored_area.bin_point = &packet_status_info.stored_area.bin_received_file[0];
+	packet_status_info.stored_area.bin_point_last = &packet_status_info.stored_area.bin_received_file_last[0];
+	memset(&packet_status_info.stored_area.current_packet[0], 0, sizeof(packet_status_info.stored_area.current_packet));
 }
 
 int new_receive_block_packet(Message *m)
@@ -164,7 +153,6 @@ int new_receive_block_packet(Message *m)
 	int j = 0;
 	uint8_t temp_num;
 	uint8_t my_index;
-	//uint32_t received_crc = 0;
 	Message ack_message;
 	extern uint32_t master_nodeid;
 	c = (m->data[0] & 0x80) >> 7;//是否为一个段的最后一个数据包
@@ -192,7 +180,7 @@ int new_receive_block_packet(Message *m)
 	else if(result == packet_index_ok)
 	{
 		packet_status_info.packet_index_info.index_ok++;
-		memcpy(&current_packet[packet_status_info.current_index - 1], m, sizeof(*m));
+		memcpy(&packet_status_info.stored_area.current_packet[packet_status_info.current_index - 1], m, sizeof(*m));
 	}
 	else if(result == packet_index_num_insufficent)//收到最后一个报文，但报文数量不足。
 	{
@@ -229,39 +217,39 @@ int new_receive_block_packet(Message *m)
 	}
 
 	//将接收的数据包内容按顺序存入数组中，并进行CRC校验
-	temp_num = packet_index_array[0];
+	temp_num = packet_status_info.stored_area.packet_index_array[0];
 
 	for(i = 0; i < packet_status_info.current_index; i++)
 	{
 		for(j = 0; j < packet_status_info.current_index; j++)
 		{
-			if(packet_index_array[j] == 0xFF)
+			if(packet_status_info.stored_area.packet_index_array[j] == 0xFF)
 			{
 				continue;
 			}
 		
-			if(temp_num >= packet_index_array[j])
+			if(temp_num >= packet_status_info.stored_area.packet_index_array[j])
 			{
-				temp_num = packet_index_array[j];
+				temp_num = packet_status_info.stored_area.packet_index_array[j];
 				my_index = j;
 			}
 		}
 
 		temp_num = 0xff;
 
-		packet_index_array[my_index] = 0xFF;
+		packet_status_info.stored_area.packet_index_array[my_index] = 0xFF;
 
-		memcpy(bin_point, &current_packet[my_index].data[1], 7);
-		bin_point += 7;
+		memcpy(packet_status_info.stored_area.bin_point, &packet_status_info.stored_area.current_packet[my_index].data[1], 7);
+		packet_status_info.stored_area.bin_point += 7;
 	}
 	
-	packet_status_info.cal_crc = calc_crc32(0, &bin_received_file[7], sizeof(bin_received_file) - 7);
+	packet_status_info.cal_crc = calc_crc32(0, &packet_status_info.stored_area.bin_received_file[7], sizeof(packet_status_info.stored_area.bin_received_file) - 7);
 
-	packet_status_info.received_crc = (bin_received_file[3] << 24) | (bin_received_file[2] << 16) | (bin_received_file[1] << 8) | bin_received_file[0];
+	packet_status_info.received_crc = (packet_status_info.stored_area.bin_received_file[3] << 24) | (packet_status_info.stored_area.bin_received_file[2] << 16) | (packet_status_info.stored_area.bin_received_file[1] << 8) | packet_status_info.stored_area.bin_received_file[0];
 	
 	if(packet_status_info.cal_crc == packet_status_info.received_crc)
 	{
-		if(write_flash_error == FLASH_If_Write(&packet_status_info.dest_address, &bin_received_file[7], NUM_OF_PACKET_PER_BLOCK * 7))
+		if(write_flash_error == FLASH_If_Write(&packet_status_info.dest_address, &packet_status_info.stored_area.bin_received_file[7], NUM_OF_PACKET_PER_BLOCK * 7))
 		{
 			//发送写入FLASH错误报文
 			printf("%s, %d\n", __FUNCTION__, __LINE__);
@@ -326,8 +314,6 @@ int new_received_last_section(Message *m)
 	int j = 0;
 	uint8_t temp_num;
 	uint8_t my_index;
-	//uint32_t cal_crc = 0;
-	//uint32_t received_crc = 0;
 	uint32_t flash_write_result = 0;
 	Message ack_message;
 	extern uint32_t master_nodeid;
@@ -353,7 +339,7 @@ int new_received_last_section(Message *m)
 		}
 		else if(result == 0)
 		{
-			memcpy(&current_packet[packet_status_info.current_index - 1], m, sizeof(*m));
+			memcpy(&packet_status_info.stored_area.current_packet[packet_status_info.current_index - 1], m, sizeof(*m));
 		}
 		else if(result == 1)//收到最后一个报文， 但报文数量不足。
 		{
@@ -415,40 +401,39 @@ int new_received_last_section(Message *m)
 		}
 	}
 		
-	temp_num = packet_index_array[0];
+	temp_num = packet_status_info.stored_area.packet_index_array[0];
 	for(i = 0; i < packet_status_info.current_index; i++)
 	{
 		for(j = 0; j < packet_status_info.current_index; j++)
 		{
-			if(packet_index_array[j] == 0xFF)
+			if(packet_status_info.stored_area.packet_index_array[j] == 0xFF)
 			{
 				continue;
 			}
 			
-			if(temp_num >= packet_index_array[j])
+			if(temp_num >= packet_status_info.stored_area.packet_index_array[j])
 			{
-				temp_num = packet_index_array[j];
+				temp_num = packet_status_info.stored_area.packet_index_array[j];
 				my_index = j;
 			}
 		}
 		
-		packet_index_array[my_index] = 0xFF;
+		packet_status_info.stored_area.packet_index_array[my_index] = 0xFF;
 		
 		temp_num = 0xff;
-		memcpy(bin_point_last, &current_packet[my_index].data[1], 7);
-		bin_point_last += 7;
-
+		memcpy(packet_status_info.stored_area.bin_point_last, &packet_status_info.stored_area.current_packet[my_index].data[1], 7);
+		packet_status_info.stored_area.bin_point_last += 7;
 	}
 
 	if(packet_status_info.left_byte_num != 0)
 	{
-		packet_status_info.cal_crc = calc_crc32(0, &bin_received_file_last[7], (packet_status_info.left_packet_num + 1) * 7);
+		packet_status_info.cal_crc = calc_crc32(0, &packet_status_info.stored_area.bin_received_file_last[7], (packet_status_info.left_packet_num + 1) * 7);
 	}
 	else
 	{
-		packet_status_info.cal_crc = calc_crc32(0, &bin_received_file_last[7], (packet_status_info.left_packet_num * 7));
+		packet_status_info.cal_crc = calc_crc32(0, &packet_status_info.stored_area.bin_received_file_last[7], (packet_status_info.left_packet_num * 7));
 	}
-	packet_status_info.received_crc = (bin_received_file_last[3] << 24) | (bin_received_file_last[2] << 16) | (bin_received_file_last[1] << 8) | bin_received_file_last[0];
+	packet_status_info.received_crc = (packet_status_info.stored_area.bin_received_file_last[3] << 24) | (packet_status_info.stored_area.bin_received_file_last[2] << 16) | (packet_status_info.stored_area.bin_received_file_last[1] << 8) | packet_status_info.stored_area.bin_received_file_last[0];
 
 
 	if(packet_status_info.cal_crc == packet_status_info.received_crc)
@@ -456,11 +441,11 @@ int new_received_last_section(Message *m)
 		if(packet_status_info.left_byte_num == 0)
 		{
 
-			flash_write_result = FLASH_If_Write(&packet_status_info.dest_address, &bin_received_file_last[7], packet_status_info.left_packet_num * 7);
+			flash_write_result = FLASH_If_Write(&packet_status_info.dest_address, &packet_status_info.stored_area.bin_received_file_last[7], packet_status_info.left_packet_num * 7);
 		}
 		else if(packet_status_info.left_byte_num != 0)
 		{
-			flash_write_result = FLASH_If_Write(&packet_status_info.dest_address, &bin_received_file_last[7], (packet_status_info.left_packet_num + 1) * 7);
+			flash_write_result = FLASH_If_Write(&packet_status_info.dest_address, &packet_status_info.stored_area.bin_received_file_last[7], (packet_status_info.left_packet_num + 1) * 7);
 		}
 		if(write_flash_error == flash_write_result)
 		{
@@ -500,9 +485,7 @@ int new_received_last_section(Message *m)
 			if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
 			{
 				Error_Handler();
-			}
-			
-			return packet_ok;			
+			}		
 		}
 	}
 	else
@@ -516,14 +499,15 @@ int new_received_last_section(Message *m)
 		packet_status_info.received_section_num--;
 		return packet_crc_check_error;	
 	}
-	return 0;
+	
+	return packet_ok;
 }
 
 int pack_dispatch(Message *m)
 {
 	int ret = 0;
 	
-	if(received_procedure.first_procedure == 1)
+	if(packet_status_info.receive_flow == first_procedure)
 	{
 		if(packet_ok != new_receive_block_packet(m))
 		{
@@ -546,15 +530,14 @@ int pack_dispatch(Message *m)
 
 		if(packet_status_info.received_section_num == packet_status_info.total_section_num)
 		{
-			received_procedure.first_procedure = 0;
-			received_procedure.second_procedure = 1;
+			packet_status_info.receive_flow = second_procedure;
 			//extern Message mym;
 			//memcpy(&mym, m, sizeof(*m));
 			return 0;
 		}
 	}
 
-	if(received_procedure.second_procedure == 1)
+	if(packet_status_info.receive_flow == second_procedure)
 	{
 		if(packet_ok != new_received_last_section(m))
 		{
@@ -587,8 +570,8 @@ int pack_dispatch(Message *m)
 				return 1;
 			}*/
 			
-			received_procedure.first_procedure = 0;
-			received_procedure.second_procedure = 0;
+			packet_status_info.receive_flow = 0xff;
+			packet_status_info.receive_flow = 0xff;
 			packet_status_info.bin_received_success = 0xff;
 		}
 	}

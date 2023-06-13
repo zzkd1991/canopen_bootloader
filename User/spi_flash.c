@@ -233,11 +233,11 @@ uint16_t SPI_FLASH_MulByteWrite(uint32_t WriteAddr, uint8_t *buff, uint32_t cnt)
 	SPI_FLASH_WriteEnable();
 	SPI_FLASH_CS_LOW();
 	SPI_FLASH_SendByte(SST25_MulByteProgram);
-  	SPI_FLASH_SendByte((WriteAddr & 0xFF0000) >> 16);
+	SPI_FLASH_SendByte((WriteAddr & 0xFF0000) >> 16);
 
-  	SPI_FLASH_SendByte((WriteAddr & 0xFF00) >> 8);
-  
-  	SPI_FLASH_SendByte(WriteAddr & 0xFF);
+	SPI_FLASH_SendByte((WriteAddr & 0xFF00) >> 8);
+
+	SPI_FLASH_SendByte(WriteAddr & 0xFF);
 
 	SPI_FLASH_SendByte(buff[0]);
 
@@ -249,10 +249,10 @@ uint16_t SPI_FLASH_MulByteWrite(uint32_t WriteAddr, uint8_t *buff, uint32_t cnt)
 	while(i < cnt)
 	{
 		SPITimeout = SPIT_FLAG_TIMEOUT;
-  		while (__HAL_SPI_GET_FLAG( &SpiHandle, SPI_FLAG_TXE ) == RESET)
-   		{
-    		if((SPITimeout--) == 0) return SPI_TIMEOUT_UserCallback(0);
-   		}
+			while (__HAL_SPI_GET_FLAG( &SpiHandle, SPI_FLAG_TXE ) == RESET)
+			{
+				if((SPITimeout--) == 0) return SPI_TIMEOUT_UserCallback(0);
+			}
 
 		SPI_FLASH_CS_LOW();
 		SPI_FLASH_SendByte(SST25_MulByteProgram);
@@ -277,7 +277,6 @@ uint16_t SPI_FLASH_MulByteWrite(uint32_t WriteAddr, uint8_t *buff, uint32_t cnt)
 
 	SPI_FLASH_WaitForWriteEnd();
 
-	
 }
 
 uint32_t SPI_FLASH_ReadDeviceID(void)

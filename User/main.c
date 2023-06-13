@@ -23,15 +23,10 @@ extern void Can_data_Process(void);
 extern uint32_t JumpAddress;
 extern CAN_HandleTypeDef hcan1;
 extern uint32_t id1;
-extern uint32_t enter_bootloader_flag;
-extern int cnt;
-
-
 uint32_t *sp = NULL;
 extern SPI_HandleTypeDef SpiHandle;
 extern UART_HandleTypeDef UartHandle;
 extern uint32_t device_id;
-extern uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1];
 extern PACKET_STATUS_INFO packet_status_info;
 
 uint32_t slave_nodeid;
@@ -59,12 +54,15 @@ int main(void)
     master_nodeid = 0x580 + id1;
     slave_nodeid = 0x600 + id1;
     
-    memset(&packet_index_array[0], 0xff, sizeof(packet_index_array));
+    memset(&packet_status_info.stored_area.packet_index_array[0], 0xff, sizeof(packet_status_info.stored_area.packet_index_array));
     led1_show_white();
     led2_show_white();
     Can_Config();	
     ClearCanQueue();
     packet_status_info.dest_address = APPLICATION_ADDRESS;
+	  packet_status_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;
+		packet_status_info.state_machine_flag.flow_flag = prepare_flow_flag;
+		packet_status_info.receive_flow = first_procedure;
     printf("hello world\n");
 		
 		if(0 != FLASH_If_Erase(0))
@@ -77,7 +75,7 @@ int main(void)
 		while(1)
 		{	
 			Can_data_Process();
-			if(enter_bootloader_flag == not_enter_bootloader)
+			if(packet_status_info.state_machine_flag.enter_bootloader_flag == not_enter_bootloader)
 			{
 				GetUpperComputerInfoAndWait3S(&flag);		
 			}

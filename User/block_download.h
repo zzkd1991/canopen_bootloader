@@ -43,12 +43,42 @@ typedef enum
 	packet_ok = 0,
 }HANDLE_RECEIVED_PACKET_STATUS;
 
+typedef enum
+{
+  	prepare_flow_flag = 0,
+    main_flow_flag = 1,	
+}PREPARE_MAIN_FLAG_struct;
+
+typedef enum
+{
+	 first_procedure = 0,
+	 second_procedure = 1,
+}RECEIVED_PROCEDURE_INFO;
+
+
 typedef struct PACKET_INDEX_INFO_struct
 {
 	int index_range_error;
 	int index_ok;
 	int index_num_insufficent;
 }PACKET_INDEX_INFO;
+
+typedef struct STORED_AREA_FOR_PACKET_struct
+{
+	uint8_t bin_received_file[(NUM_OF_PACKET_PER_BLOCK + 1) * 7];
+	uint8_t bin_received_file_last[NUM_OF_PACKET_PER_BLOCK * 7];
+	uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1];
+	Message current_packet[NUM_OF_PACKET_PER_BLOCK + 1];
+	uint16_t deviceid_array[20];
+	uint8_t *bin_point;
+	uint8_t *bin_point_last;
+}STORED_AREA_FOR_PACKET;
+
+typedef struct STATE_MACHINE_FLAG_struct
+{
+	uint32_t enter_bootloader_flag;
+	uint16_t flow_flag;
+}STATE_MACHINE_FLAG;
 
 typedef struct PACKET_STATUS_INFO_struct
 {
@@ -67,14 +97,14 @@ typedef struct PACKET_STATUS_INFO_struct
 	int bin_received_success;
 	uint32_t cal_crc;
 	uint32_t received_crc;
+	uint32_t block_received_packet_num;
 	PACKET_INDEX_INFO packet_index_info;
+	STORED_AREA_FOR_PACKET stored_area;
+	STATE_MACHINE_FLAG state_machine_flag;
+	uint32_t receive_flow;
 }PACKET_STATUS_INFO;
 
-typedef struct RECEIVED_PROCEDURE_struct
-{
-	int first_procedure;
-	int second_procedure;
-}RECEIVED_PROCEDURE_INFO;
+
 
 
 #endif

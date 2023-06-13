@@ -32,6 +32,7 @@
 #include "block_download.h"
 #include "can_queue.h"
 
+extern PACKET_STATUS_INFO packet_status_info;
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -166,15 +167,14 @@ uint32_t Str2Int(uint8_t *inputstr, int32_t *intnum)
 void GetUpperComputerInfoAndWait3S(int* flag)
 {
 	extern __IO uint32_t TimingDelay1;
-	extern uint32_t enter_bootloader_flag;
-	extern int cnt;
+  int cnt = 10;
 
 	/* Waiting for user input */
 	while (1)
 	{
 		
 		Can_data_Process();
-		if (enter_bootloader_flag == enter_bootloader && cnt > 0)
+		if (packet_status_info.state_machine_flag.enter_bootloader_flag == enter_bootloader && cnt > 0)
 		{
 			*flag = load_new_procedure;
 			break;	
@@ -184,7 +184,7 @@ void GetUpperComputerInfoAndWait3S(int* flag)
 		   	TimingDelay1 = 0;		   
 		   	cnt--;
 		   	printf("%d s\n", cnt);
-		   	if(cnt == 0 && enter_bootloader_flag == not_enter_bootloader)
+		   	if(cnt == 0 && packet_status_info.state_machine_flag.enter_bootloader_flag == not_enter_bootloader)
 		   	{
 		   		*flag = load_old_procedure;
 		   		break;

@@ -7,27 +7,15 @@
 #include "crc.h"
 #include "led.h"
 
-uint32_t enter_bootloader_flag = not_enter_bootloader;
-uint16_t deviceid_array[20] = {0};
-int cnt = 10;
-uint32_t block_received_packet_num = 0;
-uint16_t prepare_flow_flag = 1;
-
-extern uint8_t bin_received_file[(NUM_OF_PACKET_PER_BLOCK + 1) * 7];
-extern uint8_t bin_received_file_last[NUM_OF_PACKET_PER_BLOCK * 7];
-extern uint8_t packet_index_array[NUM_OF_PACKET_PER_BLOCK + 1];
-extern uint8_t *bin_point;
-extern uint8_t *bin_point_last;
-
 extern PACKET_STATUS_INFO packet_status_info;
 
 
 int device_find(uint16_t id)
 {
 	int i = 0;
-	for(i = 0; i < sizeof(deviceid_array)/ sizeof(deviceid_array[0]); i++)
+	for(i = 0; i < sizeof(packet_status_info.stored_area.deviceid_array)/ sizeof(packet_status_info.stored_area.deviceid_array[0]); i++)
 	{
-		if(deviceid_array[i] == id)
+		if(packet_status_info.stored_area.deviceid_array[i] == id)
 		{
 			return 0;
 		}
@@ -62,18 +50,18 @@ void prepare_flow(Message *m)
 		{
 			Error_Handler();
 		}		
-		enter_bootloader_flag = enter_bootloader;
+		packet_status_info.state_machine_flag.enter_bootloader_flag = enter_bootloader;
 	}
 
 	if(m->data[0] == 0xFF && m->data[1] == 0xFF)
 	{
-		packet_status_info.file_length = m->data[2] | (m->data[3] << 8) | (m->data[4] << 16) | (m->data[5] << 24) | (m->data[6] << 32);
+		packet_status_info.file_length = m->data[2] | (m->data[3] << 8) | (m->data[4] << 16) | (m->data[5] << 24);
 		packet_status_info.total_packet_num = packet_status_info.file_length / 7;
 		packet_status_info.total_section_num = packet_status_info.total_packet_num / NUM_OF_PACKET_PER_BLOCK;
 		packet_status_info.left_byte_num = packet_status_info.file_length % 7;
 		packet_status_info.left_packet_num = packet_status_info.total_packet_num - NUM_OF_PACKET_PER_BLOCK * packet_status_info.total_section_num;
-		bin_point = &bin_received_file[0];
-		bin_point_last = &bin_received_file_last[0];
+		packet_status_info.stored_area.bin_point = &packet_status_info.stored_area.bin_received_file[0];
+		packet_status_info.stored_area.bin_point_last = &packet_status_info.stored_area.bin_received_file_last[0];
 
 		
 		respond_message.len = 8;
@@ -90,19 +78,19 @@ void prepare_flow(Message *m)
 		{
 			Error_Handler();
 		}
-		prepare_flow_flag = 0;
+		packet_status_info.state_machine_flag.flow_flag = main_flow_flag;
 	}
 }
 
 int NEW_Can_Message_Dispatch(Message *m)
 {
-	if(prepare_flow_flag == 1)
+	if(packet_status_info.state_machine_flag.flow_flag == prepare_flow_flag)
 	{
 		prepare_flow(m);
 	}
 	else
 	{
-		block_received_packet_num++;
+		packet_status_info.block_received_packet_num++;
 		pack_dispatch(m);
 	}
 
