@@ -59,11 +59,6 @@ int main(void)
 		packet_info.state_machine_flag.flow_flag = prepare_flow_flag;
 		packet_info.receive_flow = first_procedure;
     printf("hello world\n");
-		/*if(erase_flash_ok != FLASH_If_Erase(0))
-		{
-			Error_Handler();
-			return -1;
-		}*/	
 
 #if 1
 	while(1)

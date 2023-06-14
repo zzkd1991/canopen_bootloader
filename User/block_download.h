@@ -12,7 +12,8 @@ void packet_value_reset_flow(void);
 int pack_dispatch(Message *m);
 void form_ack_message(Message *ack_message, uint16_t index, uint8_t subindex, uint8_t ackcode, uint32_t error_section, uint8_t command_code);
 int NEW_Can_Message_Dispatch(Message *m);
-
+void determine_first_flow_packet_receved_timeout(void);
+void determine_second_flow_packet_receved_timeout(void);
 
 typedef enum
 {
@@ -36,10 +37,11 @@ typedef enum
 
 typedef enum
 {
-	packet_index_error = -4,
-	packet_num_insufficent = -3,
-	packet_crc_check_error = -2,
-	packet_write_flash_error = -1,
+	packet_index_error = -5,
+	packet_num_insufficent = -4,
+	packet_crc_check_error = -3,
+	packet_write_flash_error = -2,
+	packet_repeat = -1,
 	packet_ok = 0,
 }HANDLE_RECEIVED_PACKET_STATUS;
 
@@ -61,6 +63,7 @@ typedef struct PACKET_INDEX_INFO_struct
 	int index_range_error;
 	int index_ok;
 	int index_num_insufficent;
+	int index_repeat_error;
 }PACKET_INDEX_INFO;
 
 typedef struct STORED_AREA_FOR_PACKET_struct
@@ -91,7 +94,6 @@ typedef struct PACKET_STATUS_INFO_struct
 	int bin_received_succeed;
 	uint32_t dest_address;
 	uint8_t current_index;
-	uint32_t last_packet_arrived_tick;
 	uint64_t block_total_received_byte;
 	uint8_t block_cur_percent_inc;
 	int bin_received_success;
@@ -102,6 +104,11 @@ typedef struct PACKET_STATUS_INFO_struct
 	STORED_AREA_FOR_PACKET stored_area;
 	STATE_MACHINE_FLAG state_machine_flag;
 	uint32_t receive_flow;
+	uint32_t first_pro_first_packet_tick;
+	uint32_t first_pro_first_packet_flag;
+	uint32_t second_pro_first_packet_tick;
+	uint32_t second_pro_first_packet_flag;
+	uint8_t packet_receive_timeout;
 }PACKET_STATUS_INFO;
 
 extern PACKET_STATUS_INFO packet_info;

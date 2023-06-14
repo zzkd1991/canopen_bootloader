@@ -40,6 +40,7 @@
 #include "stm32f4xx_it.h"
 #include "usart.h"
 #include "bsp_can.h"
+#include "block_download.h"
 
 
 /** @addtogroup STM32F4xx_HAL_Examples
@@ -161,7 +162,8 @@ void SysTick_Handler(void)
 
   	HAL_IncTick();
 	TimingDelay_Increment();
-	
+	determine_first_flow_packet_receved_timeout();
+	determine_second_flow_packet_receved_timeout();
 }
 
 void delay_1000ms(void)

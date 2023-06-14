@@ -23,8 +23,6 @@ int device_find(uint16_t id)
 void prepare_flow(Message *m)
 {
 	extern uint32_t master_nodeid;
-	uint32_t starttick = 0;
-
 	Message respond_message = {0};
 	int i = 0;
 	if(m == NULL)
@@ -61,10 +59,11 @@ void prepare_flow(Message *m)
 		packet_info.stored_area.bin_point = &packet_info.stored_area.bin_received_file[0];
 		packet_info.stored_area.bin_point_last = &packet_info.stored_area.bin_received_file_last[0];
 
-		/*if(erase_flash_ok != FLASH_If_Erase(0))
+/*在保证内部flash擦除完成后，接收上位机的大量报文，可以正常进行*/
+		if(erase_flash_ok != FLASH_If_Erase(0))
 		{
 			Error_Handler();
-		}*/
+		}
 
 		
 		respond_message.len = 8;
@@ -83,19 +82,21 @@ void prepare_flow(Message *m)
 		}
 		packet_info.state_machine_flag.flow_flag = main_flow_flag;
 
-
+/*这种情况 ，在擦除flash的同时，大量接收上位机的CAN报文，容易出现异常*/
+#if 0
 		if(erase_flash_ok != FLASH_If_Erase(0))
 		{
 			Error_Handler();
 		}
-		starttick = HAL_GetTick();
-		while((HAL_GetTick() - starttick) < 2000);
+#endif
+		
 	}
 }
 
 int NEW_Can_Message_Dispatch(Message *m)
 {
 	int status;
+	extern uint32_t received_packet_num;
 	if(packet_info.state_machine_flag.flow_flag == prepare_flow_flag)
 	{
 		prepare_flow(m);
@@ -107,6 +108,8 @@ int NEW_Can_Message_Dispatch(Message *m)
 		status = pack_dispatch(m);
 		if(status != packet_ok)
 		{
+			printf("received packet num %d\r\n", packet_info.block_received_packet_num);
+			printf("int event received packet num %d\r\n", received_packet_num);
 			Error_Handler();
 			return status;
 		}
