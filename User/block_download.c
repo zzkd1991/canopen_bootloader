@@ -215,7 +215,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 		packet_info.packet_index_info.index_num_insufficent++;
 		
 		ClearCanRxQueue();
-		form_ack_message(&ack_message, 0x02, 0x01, 0xFE, packet_info.received_section_num, 0x60);
+		form_ack_message(&ack_message, 0x02, 0x01, 0xFD, packet_info.received_section_num, 0x60);
 
 		packet_info.packet_index_info.index_num_insufficent = 1;
 		
@@ -233,7 +233,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 		//接收报文索引错误报文
 		printf("%s, %d\n", __FUNCTION__, __LINE__);
 		ClearCanRxQueue();
-		form_ack_message(&ack_message, 0x02, 0x01, 0xFD, packet_info.received_section_num, 0x60);
+		form_ack_message(&ack_message, 0x02, 0x01, 0xFC, packet_info.received_section_num, 0x60);
 
 		packet_info.packet_index_info.index_range_error = 1;
 
@@ -247,7 +247,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 	else if(result == packet_index_repeat)
 	{
 		ClearCanRxQueue();
-		form_ack_message(&ack_message, 0x02, 0x01, 0xFC, packet_info.received_section_num, 0x60);
+		form_ack_message(&ack_message, 0x02, 0x01, 0xFB, packet_info.received_section_num, 0x60);
 
 		packet_info.packet_index_info.index_repeat_error = 1;
 
@@ -390,7 +390,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 		packet_info.packet_index_info.index_num_insufficent++;
 		
 		ClearCanRxQueue();
-		form_ack_message(&ack_message, 0x02, 0x01, 0xFE, packet_info.received_section_num, 0x60);
+		form_ack_message(&ack_message, 0x02, 0x01, 0xFD, packet_info.received_section_num, 0x60);
 		
 		packet_info.packet_index_info.index_num_insufficent = 1;
 		
@@ -408,7 +408,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 		//发送接收报文索引错误报文
 		printf("%s, %d\n", __FUNCTION__, __LINE__);
 		ClearCanRxQueue();
-		form_ack_message(&ack_message, 0x02, 0x01, 0xFD, packet_info.received_section_num, 0x60);
+		form_ack_message(&ack_message, 0x02, 0x01, 0xFC, packet_info.received_section_num, 0x60);
 		
 		if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
 		{
@@ -419,7 +419,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 	else if(result == packet_index_repeat)
 	{
 		ClearCanRxQueue();
-		form_ack_message(&ack_message, 0x02, 0x01, 0xFC, packet_info.received_section_num, 0x60);
+		form_ack_message(&ack_message, 0x02, 0x01, 0xFB, packet_info.received_section_num, 0x60);
 
 		packet_info.packet_index_info.index_repeat_error = 1;
 

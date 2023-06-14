@@ -49,4 +49,15 @@ ack_message.data[2] = 0x01;
 ack_message.data[3] = 0x0a;//发送百分比
 ack_message.data[4] = block_cur_percent_inc;
 4收到报文数量不足
-form_ack_message(&ack_message, 0x02, 0x01, 0xFE, received_section_num, 0x60);
+form_ack_message(&ack_message, 0x02, 0x01, 0xFD, received_section_num, 0x60);
+
+5收到报文索引范围不在0-30之间
+form_ack_message(&ack_message, 0x02, 0x01, 0xFC, packet_info.received_section_num, 0x60);
+
+6接收报文索引重复
+form_ack_message(&ack_message, 0x02, 0x01, 0xFB, packet_info.received_section_num, 0x60);
+
+7接收报文正确
+form_ack_message(&ack_message, 0x02, 0x01, 0x0, 0, 0x60);
+
+
