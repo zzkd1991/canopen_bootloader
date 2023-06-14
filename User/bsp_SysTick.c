@@ -3,7 +3,7 @@
 __IO u32 TimingDelay;
 __IO u32 TimingDelay1;
 __IO u32 TimingDelay2;
-__IO u32 TimingDelay3 = 10000;
+__IO u32 TimingDelay3 = 1000;
 
  
 void SysTick_Init(void)
@@ -12,7 +12,7 @@ void SysTick_Init(void)
 	 * SystemFrequency / 100000	 10us
 	 * SystemFrequency / 1000000 1us
 	 */
-	if (HAL_SYSTICK_Config(SystemCoreClock / 100000))
+	if (HAL_SYSTICK_Config(SystemCoreClock / 1000))
 	//if(HAL_SYSTICK_Config(SystemCoreClock * 10))
 	{ 
 		/* Capture error */ 

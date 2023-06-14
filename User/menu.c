@@ -52,7 +52,7 @@ uint32_t JumpAddress;
   */
 void Main_Menu(void)
 {	
-	if(packet_status_info.bin_received_success == 0xff)//进入bootloader模式，引导主程序
+	if(packet_info.bin_received_success == 0xff)//进入bootloader模式，引导主程序
 	{
 		  //HAL_NVIC_DisableIRQ(SysTick_IRQn);
 		  if(((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000) == 0x20000000)//检查栈顶地址是否合法
@@ -61,7 +61,7 @@ void Main_Menu(void)
 			  Jump_To_Application = (pFunction)JumpAddress;
 			  printf("enter\n");
 			  __set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);  
-#if 1	  
+#if 0	  
 			  HAL_NVIC_DisableIRQ(SysTick_IRQn);
 				
 			  HAL_CAN_MspDeInit(&hcan1);

@@ -104,7 +104,7 @@ typedef struct PACKET_STATUS_INFO_struct
 	uint32_t receive_flow;
 }PACKET_STATUS_INFO;
 
-extern PACKET_STATUS_INFO packet_status_info;
+extern PACKET_STATUS_INFO packet_info;
 
 
 #endif

@@ -49,28 +49,27 @@ int main(void)
     master_nodeid = 0x580 + id1;
     slave_nodeid = 0x600 + id1;
     
-    memset(&packet_status_info.stored_area.packet_index_array[0], 0xff, sizeof(packet_status_info.stored_area.packet_index_array));
+    memset(&packet_info.stored_area.packet_index_array[0], 0xff, sizeof(packet_info.stored_area.packet_index_array));
     led1_show_white();
     led2_show_white();
     CAN_Hardware_Config(500);
     ClearCanQueue();
-    packet_status_info.dest_address = APPLICATION_ADDRESS;
-		packet_status_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;
-		packet_status_info.state_machine_flag.flow_flag = prepare_flow_flag;
-		packet_status_info.receive_flow = first_procedure;
+    packet_info.dest_address = APPLICATION_ADDRESS;
+		packet_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;
+		packet_info.state_machine_flag.flow_flag = prepare_flow_flag;
+		packet_info.receive_flow = first_procedure;
     printf("hello world\n");
-		
-	if(0 != FLASH_If_Erase(0))
-	{
-		Error_Handler();
-		return -1;
-	}
+		/*if(erase_flash_ok != FLASH_If_Erase(0))
+		{
+			Error_Handler();
+			return -1;
+		}*/	
 
 #if 1
 	while(1)
 	{	
 		Can_Data_Process();
-		if(packet_status_info.state_machine_flag.enter_bootloader_flag == not_enter_bootloader)
+		if(packet_info.state_machine_flag.enter_bootloader_flag == not_enter_bootloader)
 		{
 			GetUpperComputerInfoAndWait3S(&flag);		
 		}
@@ -91,10 +90,10 @@ int main(void)
 
 				HAL_CAN_MspDeInit(&hcan1);
 				HAL_UART_MspDeInit(&UartHandle);
-				if (HAL_SPI_DeInit(&SpiHandle) != HAL_OK)
+				/*if (HAL_SPI_DeInit(&SpiHandle) != HAL_OK)
 				{
 					Error_Handler();
-				}
+				}*/
 
 				for(i = 0; i < 8; i++)
 				{

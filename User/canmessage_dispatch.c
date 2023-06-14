@@ -10,9 +10,9 @@
 int device_find(uint16_t id)
 {
 	int i = 0;
-	for(i = 0; i < sizeof(packet_status_info.stored_area.deviceid_array)/ sizeof(packet_status_info.stored_area.deviceid_array[0]); i++)
+	for(i = 0; i < sizeof(packet_info.stored_area.deviceid_array)/ sizeof(packet_info.stored_area.deviceid_array[0]); i++)
 	{
-		if(packet_status_info.stored_area.deviceid_array[i] == id)
+		if(packet_info.stored_area.deviceid_array[i] == id)
 		{
 			return 0;
 		}
@@ -23,6 +23,7 @@ int device_find(uint16_t id)
 void prepare_flow(Message *m)
 {
 	extern uint32_t master_nodeid;
+	uint32_t starttick = 0;
 
 	Message respond_message = {0};
 	int i = 0;
@@ -47,18 +48,23 @@ void prepare_flow(Message *m)
 		{
 			Error_Handler();
 		}		
-		packet_status_info.state_machine_flag.enter_bootloader_flag = enter_bootloader;
+		packet_info.state_machine_flag.enter_bootloader_flag = enter_bootloader;
 	}
 
 	if(m->data[0] == 0xFF && m->data[1] == 0xFF)
 	{
-		packet_status_info.file_length = m->data[2] | (m->data[3] << 8) | (m->data[4] << 16) | (m->data[5] << 24);
-		packet_status_info.total_packet_num = packet_status_info.file_length / 7;
-		packet_status_info.total_section_num = packet_status_info.total_packet_num / NUM_OF_PACKET_PER_BLOCK;
-		packet_status_info.left_byte_num = packet_status_info.file_length % 7;
-		packet_status_info.left_packet_num = packet_status_info.total_packet_num - NUM_OF_PACKET_PER_BLOCK * packet_status_info.total_section_num;
-		packet_status_info.stored_area.bin_point = &packet_status_info.stored_area.bin_received_file[0];
-		packet_status_info.stored_area.bin_point_last = &packet_status_info.stored_area.bin_received_file_last[0];
+		packet_info.file_length = m->data[2] | (m->data[3] << 8) | (m->data[4] << 16) | (m->data[5] << 24);
+		packet_info.total_packet_num = packet_info.file_length / 7;
+		packet_info.total_section_num = packet_info.total_packet_num / NUM_OF_PACKET_PER_BLOCK;
+		packet_info.left_byte_num = packet_info.file_length % 7;
+		packet_info.left_packet_num = packet_info.total_packet_num - NUM_OF_PACKET_PER_BLOCK * packet_info.total_section_num;
+		packet_info.stored_area.bin_point = &packet_info.stored_area.bin_received_file[0];
+		packet_info.stored_area.bin_point_last = &packet_info.stored_area.bin_received_file_last[0];
+
+		/*if(erase_flash_ok != FLASH_If_Erase(0))
+		{
+			Error_Handler();
+		}*/
 
 		
 		respond_message.len = 8;
@@ -75,21 +81,29 @@ void prepare_flow(Message *m)
 		{
 			Error_Handler();
 		}
-		packet_status_info.state_machine_flag.flow_flag = main_flow_flag;
+		packet_info.state_machine_flag.flow_flag = main_flow_flag;
+
+
+		if(erase_flash_ok != FLASH_If_Erase(0))
+		{
+			Error_Handler();
+		}
+		starttick = HAL_GetTick();
+		while((HAL_GetTick() - starttick) < 2000);
 	}
 }
 
 int NEW_Can_Message_Dispatch(Message *m)
 {
 	int status;
-	if(packet_status_info.state_machine_flag.flow_flag == prepare_flow_flag)
+	if(packet_info.state_machine_flag.flow_flag == prepare_flow_flag)
 	{
 		prepare_flow(m);
 		return packet_ok;
 	}
 	else
 	{
-		packet_status_info.block_received_packet_num++;
+		packet_info.block_received_packet_num++;
 		status = pack_dispatch(m);
 		if(status != packet_ok)
 		{

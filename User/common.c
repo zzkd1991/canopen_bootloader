@@ -173,17 +173,17 @@ void GetUpperComputerInfoAndWait3S(int* flag)
 	{
 		
 		Can_Data_Process();
-		if (packet_status_info.state_machine_flag.enter_bootloader_flag == enter_bootloader && cnt > 0)
+		if (packet_info.state_machine_flag.enter_bootloader_flag == enter_bootloader && cnt > 0)
 		{
 			*flag = load_new_procedure;
 			break;	
 		}
-		if(TimingDelay1 >= 100000)//1s
+		if(TimingDelay1 >= 1000)//1s
 		{	
 		   	TimingDelay1 = 0;		   
 		   	cnt--;
 		   	printf("%d s\n", cnt);
-		   	if(cnt == 0 && packet_status_info.state_machine_flag.enter_bootloader_flag == not_enter_bootloader)
+		   	if(cnt == 0 && packet_info.state_machine_flag.enter_bootloader_flag == not_enter_bootloader)
 		   	{
 		   		*flag = load_old_procedure;
 		   		break;
