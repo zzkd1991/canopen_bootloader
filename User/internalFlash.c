@@ -138,6 +138,7 @@ int FLASH_If_Read(__IO uint32_t *FlashAddr, uint8_t *buf, uint32_t DataLength)
 		(GetSector(location_cur + DataLength) != FLASH_SECTOR_ILEGAL))
 	{
 		memcpy(buf, (uint8_t *)FlashAddr, DataLength);
+		return 0;
 	}
 
 	return -1;

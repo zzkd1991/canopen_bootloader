@@ -33,7 +33,7 @@ typedef  void (*pFunction)(void);
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void Main_Menu(void);
+void Main_Menu(uint32_t application_address);
 
 #endif  /* __MENU_H */
 

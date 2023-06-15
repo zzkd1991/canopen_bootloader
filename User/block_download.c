@@ -518,7 +518,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 		else
 		{
 			//发送正确ACK报文
-			printf("%s, %d\n", __FUNCTION__, __LINE__);
+			//printf("%s, %d\n", __FUNCTION__, __LINE__);
 			form_ack_message(&ack_message, 0x02, 0x01, 0x0, 0, 0x60);
 
 			if(CAN_SEND_OK != Can_Send(NULL, &ack_message))

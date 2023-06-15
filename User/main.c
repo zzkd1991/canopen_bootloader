@@ -31,7 +31,10 @@ uint32_t device_id;
 int main(void)
 {
     int flag = 0;
-		int i = 0;	
+	int i = 0;
+	uint32_t old_bin_status = 0;
+	uint32_t Address = 0;
+	uint32_t application_address;
     SystemClock_Config();
     SysTick_Init();
     FLASH_If_Init();
@@ -54,11 +57,25 @@ int main(void)
     led2_show_white();
     CAN_Hardware_Config(500);
     ClearCanQueue();
-    packet_info.dest_address = APPLICATION_ADDRESS;
-		packet_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;
-		packet_info.state_machine_flag.flow_flag = prepare_flow_flag;
-		packet_info.receive_flow = first_procedure;
-    printf("hello world\n");
+
+	Address = OLD_BIN_STAUS;
+	old_bin_status = *(__IO uint32_t *)Address;
+	application_address = APPLICATION_ADDRESS;
+
+	/*if(old_bin_status != 0)
+	{
+    	packet_info.dest_address = APPLICATION_ADDRESS;
+	}
+	else if(old_bin_status == 0)
+	{
+		packet_info.dest_address = APPLICATION_ADDRESS_NEW;
+	}*/
+	packet_info.dest_address = APPLICATION_ADDRESS;
+	packet_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;
+	packet_info.state_machine_flag.flow_flag = prepare_flow_flag;
+	packet_info.receive_flow = first_procedure;
+  	printf("hello world\n");
+
 
 #if 1
 	while(1)
@@ -70,52 +87,15 @@ int main(void)
 		}
 		if(flag == load_new_procedure)
 		{
-			Main_Menu();
+			if(packet_info.bin_received_success == 0xff)
+			{
+				HAL_Delay(100);
+				Main_Menu(application_address);	
+			}				
 		}
 		else if(flag == load_old_procedure)
 		{
-			//没有进入bootloader模式，直接引导主程序
-			if(((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000) == 0x20000000)//检查栈顶地址是否合法
-			{
-				JumpAddress = *(__IO uint32_t *)(APPLICATION_ADDRESS + 4);
-				Jump_To_Application = (pFunction)JumpAddress;
-				__set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);
-	#if 1	  
-				HAL_NVIC_DisableIRQ(SysTick_IRQn);
-
-				HAL_CAN_MspDeInit(&hcan1);
-				HAL_UART_MspDeInit(&UartHandle);
-				/*if (HAL_SPI_DeInit(&SpiHandle) != HAL_OK)
-				{
-					Error_Handler();
-				}*/
-
-				for(i = 0; i < 8; i++)
-				{
-					NVIC->ICER[i] = 0xFFFFFFFF;
-					NVIC->ICPR[i] = 0xFFFFFFFF;
-				}			
-				LED_GPIO_DeConfig();
-				HAL_RCC_DeInit();
-				SysTick->CTRL = 0;
-				SysTick->LOAD = 0;
-				SysTick->VAL = 0;			
-	#else
-				//跳转前需要关闭无关中断，防止APP中未使用该中断，却因为中断而跳转到中断向量表时找不到对应函数入口
-				int i = 0;
-				for(i = 0; i < 8; i++)
-				{
-				NVIC->ICER[i] = 0xFFFFFFFF;
-				NVIC->ICPR[i] = 0xFFFFFFFF;
-				}
-				HAL_RCC_DeInit();
-				SysTick->CTRL = 0;
-				SysTick->LOAD = 0;
-				SysTick->VAL = 0;
-
-	#endif		  
-				Jump_To_Application();
-			}
+			Main_Menu(application_address);
 		}
 	}
 #endif

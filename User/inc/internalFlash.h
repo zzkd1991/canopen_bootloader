@@ -16,11 +16,14 @@
 //End of the Flash address
 #define USER_FLASH_END_ADDRESS	ADDR_FLASH_SECTOR_7
 //Define the user application size
-#define USER_FLASH_SIZE		(USER_FLASH_END_ADDRESS - APPLICATION_ADDRESS + 1)
+//#define USER_FLASH_SIZE		(USER_FLASH_END_ADDRESS - APPLICATION_ADDRESS + 1)
 
 //Define the address from where user application will be loaded.
 //Note: the 1st sector 0x08888888-0x08003FFF is reserved for hte IAP code
 #define APPLICATION_ADDRESS	(uint32_t)0x08008000
+#define APPLICATION_ADDRESS_NEW	(uint32_t)0x0800C000
+
+#define OLD_BIN_STAUS			(uint32_t)0x0804FF00
 
 #define OTA_ERRNO_OK		0
 #define OTA_ERRNO_ILEGAL_PARAM	-1
