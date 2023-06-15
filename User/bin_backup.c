@@ -13,9 +13,9 @@ int prv_spi2inner_copy(uint32_t srcAddr, int32_t imgLen)
 	int32_t copyLen;
 	int remainLen;
 	uint8_t buf[OTA_COPY_BUF_SIZE];
-	uint32_t destAddr = APPLICATION_ADDRESS;
+	uint32_t destAddr = APPLICATION_ADDRESS_START;
 
-	ret = FLASH_If_Erase(0);
+	ret = FLASH_If_Erase(APPLICATION_ADDRESS_START, APPLICATION_ADDRESS_END);
 
 	if(erase_flash_ok != ret)
 	{
@@ -50,7 +50,7 @@ int prv_inner2spi_copy(int32_t imgLen)
 	int32_t copyLen;
 	int page_num = 0;
 	uint8_t buf[OTA_COPY_BUF_SIZE];
-	uint32_t srcAddr = APPLICATION_ADDRESS;
+	uint32_t srcAddr = APPLICATION_ADDRESS_START;
 	uint32_t bckAddr = OTA_IMAGE_BCK_ADDR;
 
 	page_num = imgLen / SPI_FLASH_PAGE_SIZE + 1;
@@ -111,6 +111,58 @@ int store_old_image_length(uint32_t address, uint32_t image_length)
 void get_old_image_length(uint32_t address, uint32_t* image_length)
 {
 	spi_flash_read(address, (uint8_t *)image_length, sizeof(*image_length));
+}
+
+void copy_bin_from_oldaddress_to_newaddress(void)
+{
+	__IO uint32_t Data32 = 0;
+	uint32_t source_address = 0;
+	uint32_t dest_address = 0; 
+	if(erase_flash_ok != FLASH_If_Erase(NEW_APPLICATION_ADDRESS_START, NEW_APPLICATION_ADDRESS_END))
+	{
+		Error_Handler();
+	}
+
+	source_address = APPLICATION_ADDRESS_START;
+	dest_address = NEW_APPLICATION_ADDRESS_START;
+
+	while(source_address < APPLICATION_ADDRESS_END)
+	{
+		Data32 = *(__IO uint32_t *)source_address;
+		if(write_flash_error == FLASH_If_Write(&dest_address, (uint8_t *)&Data32, 4))
+		{
+			Error_Handler();
+			return;
+		}
+
+		source_address += 4;
+	}
+}
+
+void copy_bin_from_newaddress_to_oldaddress(void)
+{
+	__IO uint32_t Data32 = 0;
+	uint32_t source_address = 0;
+	uint32_t dest_address = 0;
+	if(erase_flash_ok != FLASH_If_Erase(APPLICATION_ADDRESS_START, APPLICATION_ADDRESS_END))
+	{
+		Error_Handler();
+	}
+
+	source_address = NEW_APPLICATION_ADDRESS_START;
+	dest_address = APPLICATION_ADDRESS_START;
+
+	while(source_address < NEW_APPLICATION_ADDRESS_END)
+	{
+		Data32 = *(__IO uint32_t *)source_address;
+		if(write_flash_error == FLASH_If_Write(&dest_address, (uint8_t *)&Data32, 4))
+		{
+			Error_Handler();
+			return;
+		}
+
+		source_address += 4;
+	}
 }
 
 

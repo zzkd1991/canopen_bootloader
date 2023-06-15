@@ -15,6 +15,7 @@
 #include "spi.h"
 #include "usart.h"
 #include "block_download.h"
+#include "bin_backup.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,8 +33,6 @@ int main(void)
 {
     int flag = 0;
 	int i = 0;
-	uint32_t old_bin_status = 0;
-	uint32_t Address = 0;
 	uint32_t application_address;
     SystemClock_Config();
     SysTick_Init();
@@ -57,20 +56,13 @@ int main(void)
     led2_show_white();
     CAN_Hardware_Config(500);
     ClearCanQueue();
+	
 
-	Address = OLD_BIN_STAUS;
-	old_bin_status = *(__IO uint32_t *)Address;
-	application_address = APPLICATION_ADDRESS;
+	application_address = APPLICATION_ADDRESS_START;
+	//application_address = 0x08030000;
+	//application_address = NEW_APPLICATION_ADDRESS_START;
 
-	/*if(old_bin_status != 0)
-	{
-    	packet_info.dest_address = APPLICATION_ADDRESS;
-	}
-	else if(old_bin_status == 0)
-	{
-		packet_info.dest_address = APPLICATION_ADDRESS_NEW;
-	}*/
-	packet_info.dest_address = APPLICATION_ADDRESS;
+	packet_info.dest_address = APPLICATION_ADDRESS_START;
 	packet_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;
 	packet_info.state_machine_flag.flow_flag = prepare_flow_flag;
 	packet_info.receive_flow = first_procedure;
@@ -89,7 +81,10 @@ int main(void)
 		{
 			if(packet_info.bin_received_success == 0xff)
 			{
+				/*确保在执行应用程序之前CAN报文发送完成*/
 				HAL_Delay(100);
+				//copy_bin_from_oldaddress_to_newaddress();				
+				//HAL_Delay(500);
 				Main_Menu(application_address);	
 			}				
 		}

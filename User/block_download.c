@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+
 extern uint32_t id1;
 PACKET_STATUS_INFO packet_info = {0};
 
@@ -195,6 +196,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 	uint8_t temp_num;
 	uint8_t my_index;
 	Message ack_message;
+	uint32_t cal_crc = 0;
 	extern uint32_t master_nodeid;
 	c = (m->data[0] & 0x80) >> 7;//是否为一个段的最后一个数据包
 	packet_index = (m->data[0]) & 0x1F;//前3bit代表ccs，后5位代表index
@@ -245,9 +247,15 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 		return packet_index_error;
 	}
 	else if(result == packet_index_repeat)
-	{
+	{	
+		printf("%s, %d\r\n", __FUNCTION__, __LINE__);
 		ClearCanRxQueue();
 		form_ack_message(&ack_message, 0x02, 0x01, 0xFB, packet_info.received_section_num, 0x60);
+
+		if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
+		{
+			Error_Handler();
+		}	
 
 		packet_info.packet_index_info.index_repeat_error = 1;
 
@@ -301,6 +309,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 	packet_info.received_crc = (packet_info.stored_area.bin_received_file[3] << 24) | (packet_info.stored_area.bin_received_file[2] << 16) | (packet_info.stored_area.bin_received_file[1] << 8) | packet_info.stored_area.bin_received_file[0];
 	
 	if(packet_info.cal_crc == packet_info.received_crc)
+	//if(cal_crc == packet_info.received_crc)
 	{
 		if(write_flash_error == FLASH_If_Write(&packet_info.dest_address, &packet_info.stored_area.bin_received_file[7], NUM_OF_PACKET_PER_BLOCK * 7))
 		{
@@ -343,6 +352,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 	else
 	{
 		/*CRC校验错误*/
+		printf("%s, %d\r\n", __FUNCTION__, __LINE__);
 		form_ack_message(&ack_message, 0x02, 0x01, 0xFF, packet_info.received_section_num, 0x60);
 
 		if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
@@ -420,6 +430,11 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 	{
 		ClearCanRxQueue();
 		form_ack_message(&ack_message, 0x02, 0x01, 0xFB, packet_info.received_section_num, 0x60);
+
+		if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
+		{
+			Error_Handler();
+		}		
 
 		packet_info.packet_index_info.index_repeat_error = 1;
 
@@ -502,7 +517,6 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 		}
 		if(write_flash_error == flash_write_result)
 		{
-			//发送写入FLASH错误报文
 			//发送写入FLASH错误报文
 			printf("%s, %d\n", __FUNCTION__, __LINE__);
 			form_ack_message(&ack_message, 0x02, 0x01, 0xFE, packet_info.received_section_num, 0x60);

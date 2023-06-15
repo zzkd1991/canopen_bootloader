@@ -50,15 +50,15 @@ static uint32_t GetSector(uint32_t Address)
   return sector;
 }
 
-uint32_t FLASH_If_Erase(uint32_t StartSector)
+uint32_t FLASH_If_Erase(uint32_t StartSector, uint32_t EndSector)
 {
 	static FLASH_EraseInitTypeDef EraseInitStruct;
 	uint32_t SECTORError = 0;
 	uint32_t FirstSector = 0;
 	uint32_t NbOfSectors = 0;
 
-	FirstSector = GetSector(FLASH_USER_START_ADDR);
-	NbOfSectors = GetSector(FLASH_USER_END_ADDR) - FirstSector + 1;
+	FirstSector = GetSector(StartSector);
+	NbOfSectors = GetSector(EndSector) - FirstSector + 1;
 
 	EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
 	EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
@@ -109,7 +109,7 @@ uint16_t FLASH_If_GetWriteProtectionStatus(void)
 	uint32_t UserStartSector = FLASH_SECTOR_1;
 
 	//Get the secotor where start the user flash area
-	UserStartSector = GetSector(APPLICATION_ADDRESS);
+	UserStartSector = GetSector(APPLICATION_ADDRESS_START);
 
 	//Check if there are write protected sectors inside the user flash area
 	if((FLASH_OB_GetWRP() >> (UserStartSector/8)) == (0xFF >> (UserStartSector/8)))

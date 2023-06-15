@@ -4,8 +4,10 @@
 #include "spi_flash.h"
 #include "can_queue.h"
 #include "block_download.h"
+#include "bin_backup.h"
 #include "crc.h"
 #include "led.h"
+#include "menu.h"
 
 int device_find(uint16_t id)
 {
@@ -60,7 +62,7 @@ void prepare_flow(Message *m)
 		packet_info.stored_area.bin_point_last = &packet_info.stored_area.bin_received_file_last[0];
 
 /*在保证内部flash擦除完成后，接收上位机的大量报文，可以正常进行*/
-		if(erase_flash_ok != FLASH_If_Erase(0))
+		if(erase_flash_ok != FLASH_If_Erase(APPLICATION_ADDRESS_START, APPLICATION_ADDRESS_END))
 		{
 			Error_Handler();
 		}
@@ -108,8 +110,13 @@ int NEW_Can_Message_Dispatch(Message *m)
 		status = pack_dispatch(m);
 		if(status != packet_ok)
 		{
+			uint32_t application_address = APPLICATION_ADDRESS_START;
 			printf("received packet num %d\r\n", packet_info.block_received_packet_num);
 			printf("int event received packet num %d\r\n", received_packet_num);
+			printf("status %d\r\n", status);
+			copy_bin_from_newaddress_to_oldaddress();
+			//HAL_Delay(100);
+			Main_Menu(application_address);
 			Error_Handler();
 			return status;
 		}

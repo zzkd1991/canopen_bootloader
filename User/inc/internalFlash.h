@@ -20,10 +20,14 @@
 
 //Define the address from where user application will be loaded.
 //Note: the 1st sector 0x08888888-0x08003FFF is reserved for hte IAP code
-#define APPLICATION_ADDRESS	(uint32_t)0x08008000
-#define APPLICATION_ADDRESS_NEW	(uint32_t)0x0800C000
-
-#define OLD_BIN_STAUS			(uint32_t)0x0804FF00
+/*sector2*/
+#define APPLICATION_ADDRESS_START	((uint32_t)0x08008000)
+/*sector5*/
+#define APPLICATION_ADDRESS_END		((uint32_t)0x08020000)
+/*sector5*/
+#define NEW_APPLICATION_ADDRESS_START	((uint32_t)0x08020000)
+/*sector7*/
+#define NEW_APPLICATION_ADDRESS_END		((uint32_t)0x08060000)
 
 #define OTA_ERRNO_OK		0
 #define OTA_ERRNO_ILEGAL_PARAM	-1
@@ -53,7 +57,7 @@ typedef enum
 
 int InternalFlash_Test(void);
 
-uint32_t FLASH_If_Erase(uint32_t StartSector);
+uint32_t FLASH_If_Erase(uint32_t StartSector, uint32_t EndSector);
 
 uint32_t FLASH_If_Write(__IO uint32_t* FlashAddress, uint8_t *Data, uint32_t DataLenght);
 

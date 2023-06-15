@@ -17,6 +17,9 @@ int store_old_image_length(uint32_t address, uint32_t image_length);
 
 void get_old_image_length(uint32_t address, uint32_t* image_length);
 
+void copy_bin_from_oldaddress_to_newaddress(void);
+void copy_bin_from_newaddress_to_oldaddress(void);
+
 
 #endif
 

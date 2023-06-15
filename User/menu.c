@@ -50,8 +50,11 @@ uint32_t JumpAddress;
 void Main_Menu(uint32_t application_address)
 {
 	int i = 0;
+	printf("%s, %d\r\n", __FUNCTION__, __LINE__);
 	if(((*(__IO uint32_t*)application_address) & 0x2FFE0000) == 0x20000000)//检查栈顶地址是否合法
 	{
+		printf("%s, %d\r\n", __FUNCTION__, __LINE__);
+	
 		JumpAddress = *(__IO uint32_t *)(application_address + 4);
 		Jump_To_Application = (pFunction)JumpAddress;
 		__set_MSP(*(__IO uint32_t *)application_address);
