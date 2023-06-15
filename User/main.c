@@ -83,7 +83,7 @@ int main(void)
 			{
 				/*确保在执行应用程序之前CAN报文发送完成*/
 				HAL_Delay(100);
-				//copy_bin_from_oldaddress_to_newaddress();				
+				copy_bin_from_oldaddress_to_newaddress();				
 				//HAL_Delay(500);
 				Main_Menu(application_address);	
 			}				

@@ -25,7 +25,7 @@
 /*sector5*/
 #define APPLICATION_ADDRESS_END		((uint32_t)0x08020000)
 /*sector5*/
-#define NEW_APPLICATION_ADDRESS_START	((uint32_t)0x08020000)
+#define NEW_APPLICATION_ADDRESS_START	((uint32_t)0x08040000)
 /*sector7*/
 #define NEW_APPLICATION_ADDRESS_END		((uint32_t)0x08060000)
 

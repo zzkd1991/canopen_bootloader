@@ -115,7 +115,7 @@ void get_old_image_length(uint32_t address, uint32_t* image_length)
 
 void copy_bin_from_oldaddress_to_newaddress(void)
 {
-	__IO uint32_t Data32 = 0;
+	__IO uint8_t Data8 = 0;
 	uint32_t source_address = 0;
 	uint32_t dest_address = 0; 
 	if(erase_flash_ok != FLASH_If_Erase(NEW_APPLICATION_ADDRESS_START, NEW_APPLICATION_ADDRESS_END))
@@ -128,20 +128,20 @@ void copy_bin_from_oldaddress_to_newaddress(void)
 
 	while(source_address < APPLICATION_ADDRESS_END)
 	{
-		Data32 = *(__IO uint32_t *)source_address;
-		if(write_flash_error == FLASH_If_Write(&dest_address, (uint8_t *)&Data32, 4))
+		Data8 = *(__IO uint8_t *)source_address;
+		if(write_flash_error == FLASH_If_Write(&dest_address, (uint8_t *)&Data8, 1))
 		{
 			Error_Handler();
 			return;
 		}
 
-		source_address += 4;
+		source_address += 1;
 	}
 }
 
 void copy_bin_from_newaddress_to_oldaddress(void)
 {
-	__IO uint32_t Data32 = 0;
+	__IO uint8_t Data8 = 0;
 	uint32_t source_address = 0;
 	uint32_t dest_address = 0;
 	if(erase_flash_ok != FLASH_If_Erase(APPLICATION_ADDRESS_START, APPLICATION_ADDRESS_END))
@@ -154,14 +154,14 @@ void copy_bin_from_newaddress_to_oldaddress(void)
 
 	while(source_address < NEW_APPLICATION_ADDRESS_END)
 	{
-		Data32 = *(__IO uint32_t *)source_address;
-		if(write_flash_error == FLASH_If_Write(&dest_address, (uint8_t *)&Data32, 4))
+		Data8 = *(__IO uint8_t *)source_address;
+		if(write_flash_error == FLASH_If_Write(&dest_address, (uint8_t *)&Data8, 1))
 		{
 			Error_Handler();
 			return;
 		}
 
-		source_address += 4;
+		source_address += 1;
 	}
 }
 
