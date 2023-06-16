@@ -47,7 +47,7 @@ PACKET_INDEX_STATUS packet_index_preservation(int index, int last_packet_flag)
 				}
 			}
 
-			if(index != (NUM_OF_PACKET_PER_BLOCK + 1))
+			if(index != NUM_OF_PACKET_PER_BLOCK)
 			{
 				return packet_index_range_error;
 			}
@@ -198,7 +198,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 	if(packet_info.packet_receive_timeout == 1)
 	{
 		/*收到报文数量不足*/
-		printf("%s, %d\n", __FUNCTION__, __LINE__);
+		PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
 		packet_info.packet_index_info.index_num_insufficent++;
 		
 		ClearCanRxQueue();
@@ -218,7 +218,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 	if(result == packet_index_range_error)
 	{
 		//接收报文索引错误报文
-		printf("%s, %d\r\n", __FUNCTION__, __LINE__);
+		PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
 		ClearCanRxQueue();
 		//form_ack_message(&ack_message, 0x02, 0x01, 0xFC, packet_info.received_section_num, 0x60);
 		//临时改成FE为了适配上位机
@@ -235,7 +235,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 	}
 	else if(result == packet_index_repeat)
 	{	
-		printf("%s, %d\r\n", __FUNCTION__, __LINE__);
+		PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
 		ClearCanRxQueue();
 		form_ack_message(&ack_message, 0x02, 0x01, 0xFB, packet_info.received_section_num, 0x60);
 
@@ -301,7 +301,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 		if(write_flash_error == FLASH_If_Write(&packet_info.dest_address, &packet_info.stored_area.bin_received_file[7], NUM_OF_PACKET_PER_BLOCK * 7))
 		{
 			//发送写入FLASH错误报文
-			printf("%s, %d\n", __FUNCTION__, __LINE__);
+			PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
 			form_ack_message(&ack_message, 0x02, 0x01, 0xFE, packet_info.received_section_num, 0x60);
 
 			if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
@@ -339,7 +339,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 	else
 	{
 		/*CRC校验错误*/
-		printf("%s, %d\r\n", __FUNCTION__, __LINE__);
+		PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
 		form_ack_message(&ack_message, 0x02, 0x01, 0xFF, packet_info.received_section_num, 0x60);
 
 		if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
@@ -383,7 +383,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 	if(packet_info.packet_receive_timeout == 1)
 	{
 		/*收到报文数量不足*/
-		printf("%s, %d\n", __FUNCTION__, __LINE__);
+		PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
 		packet_info.packet_index_info.index_num_insufficent++;
 		
 		ClearCanRxQueue();
@@ -403,7 +403,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 	if(result == packet_index_range_error)
 	{
 		//发送接收报文索引错误报文
-		printf("%s, %d\n", __FUNCTION__, __LINE__);
+		PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
 		ClearCanRxQueue();
 		form_ack_message(&ack_message, 0x02, 0x01, 0xFC, packet_info.received_section_num, 0x60);
 		
@@ -505,7 +505,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 		if(write_flash_error == flash_write_result)
 		{
 			//发送写入FLASH错误报文
-			printf("%s, %d\n", __FUNCTION__, __LINE__);
+			PRINT_ERR("%s, %d\n", __FUNCTION__, __LINE__);
 			form_ack_message(&ack_message, 0x02, 0x01, 0xFE, packet_info.received_section_num, 0x60);
 
 			if(CAN_SEND_OK != Can_Send(NULL, &ack_message))

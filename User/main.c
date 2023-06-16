@@ -65,7 +65,6 @@ int main(void)
 	packet_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;
 	packet_info.state_machine_flag.flow_flag = prepare_flow_flag;
 	packet_info.receive_flow = first_procedure;
-  	printf("hello world\n");
 
 #if 1
 	while(1)

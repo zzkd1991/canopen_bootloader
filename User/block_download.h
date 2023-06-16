@@ -113,6 +113,60 @@ typedef struct PACKET_STATUS_INFO_struct
 
 extern PACKET_STATUS_INFO packet_info;
 
+#define LOS_EMG_LEVEL   0
+
+#define LOS_COMMOM_LEVEL   (LOS_EMG_LEVEL + 1)//1
+
+#define LOS_ERR_LEVEL   (LOS_COMMOM_LEVEL + 1)//2
+
+#define LOS_WARN_LEVEL  (LOS_ERR_LEVEL + 1)//3
+
+#define LOS_INFO_LEVEL  (LOS_WARN_LEVEL + 1)//4
+
+#define LOS_DEBUG_LEVEL (LOS_INFO_LEVEL + 1)//5
+
+
+
+//#define PRINT_LEVEL LOS_EMG_LEVEL //0
+#define PRINT_LEVEL		LOS_ERR_LEVEL
+
+#if PRINT_LEVEL < LOS_DEBUG_LEVEL
+#define PRINT_DEBUG(fmt, args...)
+#else
+#define PRINT_DEBUG(fmt, args...)   do{(printf("[DEBUG] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_INFO_LEVEL
+#define PRINT_INFO(fmt, args...)
+#else
+#define PRINT_INFO(fmt, args...)    do{(printf("[INFO] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_WARN_LEVEL
+#define PRINT_WARN(fmt, args...)
+#else
+#define PRINT_WARN(fmt, args...)    do{(printf("[WARN] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_ERR_LEVEL
+#define PRINT_ERR(fmt, args...)
+#else
+#define PRINT_ERR(fmt, args...)     do{(printf("[ERR] "), printf(fmt, ##args));}while(0)
+#endif
+
+#if PRINT_LEVEL < LOS_COMMOM_LEVEL
+#define PRINTK(fmt, args...)
+#else
+#define PRINTK(fmt, args...)     printf(fmt, ##args)
+#endif
+
+#if PRINT_LEVEL < LOS_EMG_LEVEL
+#define PRINT_EMG(fmt, args...)
+#else
+#define PRINT_EMG(fmt, args...)     do{(printf("[EMG] "), printf(fmt, ##args));}while(0)
+#endif
+
+
 
 #endif
 
