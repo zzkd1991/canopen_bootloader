@@ -560,15 +560,13 @@ HANDLE_RECEIVED_PACKET_STATUS new_received_last_section(Message *m)
 			packet_info.block_total_received_byte += packet_info.left_packet_num * 7;//发送百分比
 			packet_info.block_total_received_byte += packet_info.left_byte_num;
 			packet_info.block_cur_percent_inc = (uint8_t)(((float)packet_info.block_total_received_byte / packet_info.file_length) * 100);
-			ack_message.data[0] = 0x60;
-			ack_message.data[1] = 0x01;
-			ack_message.data[2] = 0x00;
-			ack_message.data[3] = 0x0a;//发送百分比
-			ack_message.data[4] = packet_info.block_cur_percent_inc;
+
+			form_percent_ack_message(&ack_message, packet_info.block_cur_percent_inc);
+	
 			if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
 			{
 				Error_Handler();
-			}		
+			}	
 		}
 	}
 	else
