@@ -67,9 +67,25 @@ void CAN_Hardware_Config(uint16_t can_baud);
 #define CAN_SEND_OK			0
 #define CAN_SEND_ERR		1
 
-#ifndef getSDOcs
-#define getSDOcs(byte)	(byte >> 5)
-#endif
+
+typedef struct CAN_MESSAGE_STATIC_struct
+{
+	uint32_t tx_mailbox0_snd_num;
+	uint32_t tx_mailbox1_snd_num;
+	uint32_t tx_mailbox2_snd_num;
+	uint32_t fifo0_recv_num;
+	uint32_t fifo1_recv_num;
+	uint32_t can_it_error_warning;/* Error warning interrupt */
+	uint32_t can_it_error_passive;/* Error passive interrupt */
+	uint32_t can_it_busoff;/* bus-off interrupt */
+	uint32_t can_it_error;/* error interrupt */
+	uint32_t can_error_stf;/* can error code to stuff error*/
+	uint32_t can_error_for;/* can error code to form error */
+	uint32_t can_error_ack;/* can error code to acknowledgement error */
+	uint32_t can_error_br;/* can error code to bit recessive error */
+	uint32_t can_error_db;/* can error code to bit dominant error */
+	uint32_t can_error_crc;/* can error code to crc error */
+}CAN_MESSAGE_STATIC;
    
 // Log define
 #define CAN_INFO(fmt,arg...)           printf("<<-CAN-INFO->> "fmt"\n",##arg)

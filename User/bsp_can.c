@@ -3,8 +3,7 @@
 #include "stm32f4xx.h"
 #include "bsp_can.h"
 #include "can_queue.h"
-
-#if 1
+#include "block_download.h"
 
 //2个3级深度的FIFIO
 #define CAN1FIFO CAN_RX_FIFO0
@@ -15,15 +14,8 @@ CAN_RxHeaderTypeDef RxMeg;
 /* USER CODE END 0*/
 
 uint32_t id1 = 0x0A;
-uint32_t hal_can_tx_counter1 = 0;
-uint32_t hal_can_tx_counter2 = 0;
-uint32_t dict_tx_err_counter = 0;
-uint32_t dict_tx_write_queue = 0;
-uint32_t received_packet_num = 0;
-
 
 CAN_HandleTypeDef hcan1;
-
 
 #define CAN1_TX_IRQ		CAN1_TX_IRQn + 16
 #define CAN1_RX_IRQ		CAN1_RX0_IRQn + 16
@@ -95,27 +87,32 @@ void CAN_User_Init(CAN_HandleTypeDef* hcan) //用户初始化函数
 
 	if(HAL_Status != HAL_OK)
 	{
-		printf("Start CAN error !\r\n");
+		CAN_ERROR("Start CAN error !\r\n");
 	}
 
 	HAL_Status = HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING);//FIFO0 消息挂起中断使能
 	if(HAL_Status != HAL_OK)
 	{
-		printf("ActivateNotification CAN error\r\n");
+		CAN_ERROR("ActivateNotification CAN error\r\n");
 	}
 
 	HAL_Status = HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO1_MSG_PENDING);//FIFO1 消息挂起中断使能
 	if(HAL_Status != HAL_OK)
 	{
-		printf("ActivateNotification CAN error\r\n");
+		CAN_ERROR("ActivateNotification CAN error\r\n");
 	}
 
-	/*HAL_Status = HAL_CAN_ActivateNotification(&hcan1, CAN_IT_TX_MAILBOX_EMPTY);//传输邮箱空中断
+	HAL_Status = HAL_CAN_ActivateNotification(&hcan1, CAN_IT_TX_MAILBOX_EMPTY);//传输邮箱空中断
 	if(HAL_Status != HAL_OK)
 	{
-		printf("ActivateNotification CAN error\r\n");
-	}*/
+		CAN_ERROR("ActivateNotification CAN error\r\n");
+	}
 
+	HAL_Status = HAL_CAN_ActivateNotification(&hcan1, CAN_IT_ERROR_WARNING | CAN_IT_ERROR_PASSIVE | CAN_IT_BUSOFF | CAN_IT_LAST_ERROR_CODE | CAN_IT_ERROR);
+	if(HAL_Status != HAL_OK)
+	{
+		CAN_ERROR("Error IT Enable Failed\r\n");
+	}
 }
 
 
@@ -169,18 +166,17 @@ uint8_t Can_Send(CAN_PORT notused, Message *m)
 
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {
-
-	hal_can_tx_counter1++;
+	packet_info.can_message_static.tx_mailbox0_snd_num++;
 }
 
 void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef * hcan)
 {
-	hal_can_tx_counter1++;
+	packet_info.can_message_static.tx_mailbox1_snd_num++;
 }
 
 void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
 {
-	hal_can_tx_counter1++;
+	packet_info.can_message_static.tx_mailbox2_snd_num++;
 }
 
 
@@ -197,7 +193,7 @@ int Set_Can_Baud_Rate(int rate)
 
 	if(i == (sizeof(baudrate_config) / sizeof(baudrate_config[0]) + 1))
 	{
-		printf("rate is not supported\n");
+		CAN_ERROR("rate is not supported\n");
 		return 1;
 	}
 
@@ -224,15 +220,15 @@ void stm32can_rxinterrupt(CAN_HandleTypeDef *hcan, int Fifo_Num)
 
 	memset(&m, 0, sizeof(m));
 
-	received_packet_num++;
-
 	if(hcan == &hcan1){
 		if(Fifo_Num == 0)
 		{
+			packet_info.can_message_static.fifo0_recv_num++;
 			HAL_RetVal = HAL_CAN_GetRxMessage(&hcan1, CAN1FIFO, &RxMeg, Data);
 		}
 		else if(Fifo_Num == 1)
 		{
+			packet_info.can_message_static.fifo1_recv_num++;
 			HAL_RetVal = HAL_CAN_GetRxMessage(&hcan1, CAN2FIFO, &RxMeg, Data);
 		}
 		else
@@ -292,11 +288,50 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)//FIFO1 接收回
 	stm32can_rxinterrupt(hcan, 1);
 }
 
-
-
 void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan)
 {
-	//Error_Handler();
+	__IO uint32_t error_code = 0;
+	error_code = hcan->ErrorCode;
+	if(error_code & HAL_CAN_ERROR_EWG)
+	{
+		packet_info.can_message_static.can_it_error_warning++;
+	}
+
+	if(error_code & HAL_CAN_ERROR_EPV)
+	{
+		packet_info.can_message_static.can_it_error_passive++;
+	}
+	
+	if(error_code & HAL_CAN_ERROR_BOF)
+	{
+		packet_info.can_message_static.can_it_busoff++;
+	}
+	
+	if(error_code & HAL_CAN_ERROR_STF)
+	{
+		packet_info.can_message_static.can_error_stf++;
+	}
+	
+	if(error_code & HAL_CAN_ERROR_FOR)
+	{
+		packet_info.can_message_static.can_error_for++;
+	}
+	
+	if(error_code & HAL_CAN_ERROR_ACK)
+	{
+		packet_info.can_message_static.can_error_ack++;
+	}
+	
+	if(error_code & HAL_CAN_ERROR_BR)
+	{
+		packet_info.can_message_static.can_error_br++;
+	}
+	
+	if(error_code & HAL_CAN_ERROR_CRC)
+	{
+		packet_info.can_message_static.can_error_crc++;
+	}
+
 }
 
 
@@ -362,9 +397,12 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *canHandle)
 		/* CAN1 interrupt Init */
 		HAL_NVIC_SetPriority(CAN1_RX1_IRQn, 0, 0);
 		HAL_NVIC_EnableIRQ(CAN1_RX1_IRQn);
-		//HAL_NVIC_SetPriority(CAN1_TX_IRQn, 0, 0);
-		//HAL_NVIC_EnableIRQ(CAN1_TX_IRQn);
-	
+		HAL_NVIC_SetPriority(CAN1_TX_IRQn, 0, 0);
+		HAL_NVIC_EnableIRQ(CAN1_TX_IRQn);
+
+		HAL_NVIC_SetPriority(CAN1_SCE_IRQn, 0, 0);
+		HAL_NVIC_EnableIRQ(CAN1_SCE_IRQn);
+		
 		/* USER CODE BEGIN CAN1_MspInit 1 */
 
 		/* USER CODE CAN1_MspInit 1*/
@@ -412,8 +450,6 @@ void CAN_Hardware_Config(uint16_t can_baud)
 	CAN_Config(can_baud);
 	CAN_User_Init(&hcan1);	//用户初始化函数
 }
-
-#endif
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

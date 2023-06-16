@@ -102,6 +102,7 @@ typedef struct PACKET_STATUS_INFO_struct
 	PACKET_INDEX_INFO packet_index_info;
 	STORED_AREA_FOR_PACKET stored_area;
 	STATE_MACHINE_FLAG state_machine_flag;
+	CAN_MESSAGE_STATIC can_message_static;
 	uint32_t receive_flow;
 	uint32_t first_pro_first_packet_tick;
 	uint32_t first_pro_first_packet_flag;
