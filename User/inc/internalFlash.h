@@ -13,6 +13,11 @@
 #define ADDR_FLASH_SECTOR_6     ((uint32_t)0x08040000) /* Base address of Sector 6, 128 Kbytes  */
 #define ADDR_FLASH_SECTOR_7     ((uint32_t)0x08060000) /* Base address of Sector 7, 128 Kbytes  */
 
+
+#define STM32_FLASH_SIZE 0x100000
+#define STM32_FLASH_BASE 0x08000000
+#define FLASH_WAITETIME	 50000
+
 //End of the Flash address
 #define USER_FLASH_END_ADDRESS	ADDR_FLASH_SECTOR_7
 //Define the user application size
@@ -63,6 +68,12 @@ uint32_t FLASH_If_Write(__IO uint32_t* FlashAddress, uint8_t *Data, uint32_t Dat
 
 int FLASH_If_Read(__IO uint32_t *FlashAddr, uint8_t *buf, uint32_t DataLength);
 
+
+uint32_t stmflash_read_word(uint32_t faddr);
+
+void stmflash_write(uint32_t waddr, uint32_t *pbuf, uint32_t length);
+
+void stmflash_read(uint32_t raddr, uint32_t *pbuf, uint32_t length);
 
 uint16_t FLASH_If_GetWriteProtectionStatus(void);
 

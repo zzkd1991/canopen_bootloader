@@ -222,3 +222,91 @@ void FLASH_If_Init(void)
 							FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
 }
 
+
+uint32_t stmflash_read_word(uint32_t faddr)
+{
+	return *(volatile uint32_t *)faddr;
+}
+
+void stmfalsh_write(uint32_t waddr, uint32_t *pbuf, uint32_t length)
+{
+	FLASH_EraseInitTypeDef flasheraseinit;
+	HAL_StatusTypeDef FlashStatus = HAL_OK;
+
+	uint32_t addrx = 0;
+	uint32_t endaddr = 0;
+	uint32_t sectorerror = 0;
+
+	if(waddr < STM32_FLASH_BASE || waddr % 4 ||			/* 写入地址小于 STM32_FLASH_BASE, 或者不是4的整数倍，非法*/
+		waddr > (STM32_FLASH_BASE + STM32_FLASH_SIZE))/* 写入地址大于 STM32_FLASH_BASE + STM32_FLASH_SIZE，非法*/
+	{
+		return;
+	}
+
+	HAL_FLASH_Unlock();		/*解锁*/
+	FLASH->ACR &= ~(1 << 10); /*FLASH擦除期间，必须禁止数据缓存*/
+
+	addrx = waddr;	/*写入起始地址*/
+	endaddr = waddr + length * 4;/*写入结束地址*/
+
+	if(addrx < 0x1FFF0000) /* 只有主存储区，才需要执行擦除操作*/
+	{
+		while(addrx < endaddr)
+		{
+			if(stmflash_read_word(addrx) != 0xFFFFFFFF)
+			{
+				flasheraseinit.TypeErase = FLASH_TYPEERASE_SECTORS;
+				flasheraseinit.Sector = GetSector(addrx);
+				flasheraseinit.NbSectors = 1;
+				flasheraseinit.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+
+				if(HAL_FLASHEx_Erase(&flasheraseinit, &sectorerror) != HAL_OK)
+				{
+					break;
+				}
+			}
+			else
+			{
+				addrx += 4;
+			}
+			FLASH_WaitForLastOperation(FLASH_WAITETIME);		/*等待上次操作完成*/	
+		}
+	}
+
+	FlashStatus = FLASH_WaitForLastOperation(FLASH_WAITETIME);	/*等待上次操作完成*/
+
+	if(FlashStatus == HAL_OK)
+	{
+		while(waddr < endaddr)	/*写数据*/
+		{
+			if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, waddr, *pbuf) != HAL_OK)
+			{
+				break;		/*写入异常*/
+			}
+
+			waddr += 4;
+			pbuf++;
+		}
+	}
+
+	FLASH->ACR |= 1 << 10;	/* FLASH擦除结束，开启数据fetch */
+
+	HAL_FLASH_Lock();	
+}
+
+
+void stmflash_read(uint32_t raddr, uint32_t *pbuf, uint32_t length)
+{
+	uint32_t i;
+
+	for(i = 0; i < length; i++)
+	{
+		pbuf[i] = stmflash_read_word(raddr);
+		raddr += 4;
+	}
+}
+
+
+
+
+

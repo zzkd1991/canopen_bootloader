@@ -32,8 +32,7 @@ uint32_t device_id;
 int main(void)
 {
     int flag = 0;
-	int i = 0;
-	uint32_t application_address;
+		uint32_t application_address;
     SystemClock_Config();
     SysTick_Init();
     FLASH_If_Init();
