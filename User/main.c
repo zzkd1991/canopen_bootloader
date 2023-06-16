@@ -67,7 +67,6 @@ int main(void)
 	packet_info.receive_flow = first_procedure;
   	printf("hello world\n");
 
-
 #if 1
 	while(1)
 	{	

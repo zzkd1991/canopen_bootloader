@@ -111,11 +111,11 @@ int NEW_Can_Message_Dispatch(Message *m)
 		if(status != packet_ok)
 		{
 			uint32_t application_address = APPLICATION_ADDRESS_START;
-			printf("received packet num %d\r\n", packet_info.block_received_packet_num);
-			printf("int event received packet num %d\r\n", received_packet_num);
-			printf("status %d\r\n", status);
+			//printf("received packet num %d\r\n", packet_info.block_received_packet_num);
+			//printf("int event received packet num %d\r\n", received_packet_num);
+			//printf("status %d\r\n", status);
+			//HAL_Delay(100);			
 			copy_bin_from_newaddress_to_oldaddress();
-			//HAL_Delay(100);
 			Main_Menu(application_address);
 			Error_Handler();
 			return status;
