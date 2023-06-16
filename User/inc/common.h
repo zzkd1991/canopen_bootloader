@@ -52,6 +52,8 @@ uint32_t SerialKeyPressed(uint8_t *key);
 void SerialPutChar(uint8_t c);
 void Serial_PutString(uint8_t *s);
 void GetUpperComputerInfoAndWait3S(int *flag);
+void Driver_Init(void);
+void Init_Blockdownloaod_Proc(void);
 
 #endif  /* __COMMON_H */
 

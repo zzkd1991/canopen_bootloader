@@ -25,47 +25,16 @@ extern uint32_t JumpAddress;
 extern uint32_t id1;
 extern uint32_t device_id;
 
-uint32_t slave_nodeid;
-uint32_t master_nodeid;
-uint32_t device_id;
-
 int main(void)
 {
-    int flag = 0;
-		uint32_t application_address;
-    SystemClock_Config();
-    SysTick_Init();
-    FLASH_If_Init();
-    LED_GPIO_Config();
-    DEBUG_UART_Config();
-    //spi_flash_config();
-    //Data_Recover();
-    
-    if(id1 >= 101 || id1 <= 0)
-    {
-    	id1 = 0x0A;		
-    }
-    
-    device_id = id1;
-    master_nodeid = 0x580 + id1;
-    slave_nodeid = 0x600 + id1;
-    
-    memset(&packet_info.stored_area.packet_index_array[0], 0xff, sizeof(packet_info.stored_area.packet_index_array));
-    led1_show_white();
-    led2_show_white();
-    CAN_Hardware_Config(500);
-    ClearCanQueue();
-	
+	int flag = 0;
+	uint32_t application_address;
+
+	Driver_Init();
+	Init_Blockdownloaod_Proc();
 
 	application_address = APPLICATION_ADDRESS_START;
-	//application_address = 0x08030000;
-	//application_address = NEW_APPLICATION_ADDRESS_START;
-
-	packet_info.dest_address = APPLICATION_ADDRESS_START;
-	packet_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;
-	packet_info.state_machine_flag.flow_flag = prepare_flow_flag;
-	packet_info.receive_flow = first_procedure;
-
+	//application_address = NEW_APPLICATION_ADDRESS_START;	
 #if 1
 	while(1)
 	{	

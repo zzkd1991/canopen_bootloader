@@ -32,6 +32,8 @@
 #include "stm32f4xx.h"
 #include "block_download.h"
 #include "can_queue.h"
+#include "internalFlash.h"
+#include "led.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -157,12 +159,48 @@ uint32_t Str2Int(uint8_t *inputstr, int32_t *intnum)
   return res;
 }
 
-/**
-  * @brief  Get an integer from the HyperTerminal
-  * @param  num: The integer
-  * @retval 1: Correct
-  *         0: Error
-  */
+
+uint32_t slave_nodeid;
+uint32_t master_nodeid;
+uint32_t device_id;
+
+
+void Driver_Init(void)
+{
+	extern uint32_t id1;
+    SystemClock_Config();
+    SysTick_Init();
+    FLASH_If_Init();
+    LED_GPIO_Config();
+    DEBUG_UART_Config();
+    //spi_flash_config();
+    //Data_Recover();
+    
+    if(id1 >= 101 || id1 <= 0)
+    {
+    	id1 = 0x0A;		
+    }
+    
+    device_id = id1;
+    master_nodeid = 0x580 + id1;
+    slave_nodeid = 0x600 + id1;
+    
+    memset(&packet_info.stored_area.packet_index_array[0], 0xff, sizeof(packet_info.stored_area.packet_index_array));
+    led1_show_white();
+    led2_show_white();
+    CAN_Hardware_Config(500);
+    ClearCanQueue();
+}
+
+
+void Init_Blockdownloaod_Proc()
+{
+	packet_info.dest_address = APPLICATION_ADDRESS_START;
+	packet_info.state_machine_flag.enter_bootloader_flag = not_enter_bootloader;
+	packet_info.state_machine_flag.flow_flag = prepare_flow_flag;
+	packet_info.receive_flow = first_procedure;
+}
+
 void GetUpperComputerInfoAndWait3S(int* flag)
 {
 	extern __IO uint32_t TimingDelay1;
