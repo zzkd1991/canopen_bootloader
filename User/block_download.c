@@ -13,6 +13,38 @@
 extern uint32_t id1;
 PACKET_STATUS_INFO packet_info = {0};
 
+static void form_ack_message(Message *ack_message, uint16_t index, uint8_t subindex, uint8_t ackcode, uint32_t error_section, uint8_t command_code)
+{
+	extern uint32_t master_nodeid;
+
+	ack_message->len = 8;
+	ack_message->rtr = CAN_RTR_DATA;
+	ack_message->cob_id = master_nodeid;
+	ack_message->data[0] = command_code;
+	ack_message->data[1] = index & 0xFF;
+	ack_message->data[2] = index << 8;
+	ack_message->data[3] = subindex;
+	ack_message->data[4] = ackcode;
+	ack_message->data[5] = (error_section & 0xFF0000) >> 16;
+	ack_message->data[6] = (error_section & 0x00FF00) >> 8;
+	ack_message->data[7] = (error_section & 0x0000FF);
+}
+
+static void form_percent_ack_message(Message *ack_message, uint8_t percent_value)
+{
+	extern uint32_t master_nodeid;
+	
+	memset(ack_message, 0, sizeof(Message));
+	
+	ack_message->len = 8;
+	ack_message->rtr = CAN_RTR_DATA;
+	ack_message->cob_id = master_nodeid;
+	ack_message->data[3] = 0x0a;
+	ack_message->data[4] = percent_value;
+}
+
+
+
 PACKET_INDEX_STATUS packet_index_preservation(int index, int last_packet_flag)
 {
 	int i = 0;
@@ -627,37 +659,6 @@ int pack_dispatch(Message *m)
 		}
 	}
 	return status;
-}
-
-
-void form_ack_message(Message *ack_message, uint16_t index, uint8_t subindex, uint8_t ackcode, uint32_t error_section, uint8_t command_code)
-{
-	extern uint32_t master_nodeid;
-
-	ack_message->len = 8;
-	ack_message->rtr = CAN_RTR_DATA;
-	ack_message->cob_id = master_nodeid;
-	ack_message->data[0] = command_code;
-	ack_message->data[1] = index & 0xFF;
-	ack_message->data[2] = index << 8;
-	ack_message->data[3] = subindex;
-	ack_message->data[4] = ackcode;
-	ack_message->data[5] = (error_section & 0xFF0000) >> 16;
-	ack_message->data[6] = (error_section & 0x00FF00) >> 8;
-	ack_message->data[7] = (error_section & 0x0000FF);
-}
-
-void form_percent_ack_message(Message *ack_message, uint8_t percent_value)
-{
-	extern uint32_t master_nodeid;
-	
-	memset(ack_message, 0, sizeof(Message));
-	
-	ack_message->len = 8;
-	ack_message->rtr = CAN_RTR_DATA;
-	ack_message->cob_id = master_nodeid;
-	ack_message->data[3] = 0x0a;
-	ack_message->data[4] = percent_value;
 }
 
 
