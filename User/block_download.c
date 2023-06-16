@@ -181,7 +181,7 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 	uint8_t temp_num;
 	uint8_t my_index;
 	Message ack_message;
-	uint32_t cal_crc = 0;
+	//uint32_t cal_crc = 0;
 	extern uint32_t master_nodeid;
 	c = (m->data[0] & 0x80) >> 7;//是否为一个段的最后一个数据包
 	packet_index = (m->data[0]) & 0x1F;//前3bit代表ccs，后5位代表index
@@ -325,11 +325,9 @@ HANDLE_RECEIVED_PACKET_STATUS new_receive_block_packet(Message *m)
 
 			packet_info.block_total_received_byte += NUM_OF_PACKET_PER_BLOCK * 7;
 			packet_info.block_cur_percent_inc = (uint8_t)(((float)packet_info.block_total_received_byte / packet_info.file_length) * 100);
-			ack_message.data[0] = 0x60;
-			ack_message.data[1] = 0x01;
-			ack_message.data[2] = 0x00;
-			ack_message.data[3] = 0x0a;//发送百分比
-			ack_message.data[4] = packet_info.block_cur_percent_inc;
+
+			form_percent_ack_message(&ack_message, packet_info.block_cur_percent_inc);
+	
 			if(CAN_SEND_OK != Can_Send(NULL, &ack_message))
 			{
 				Error_Handler();
@@ -648,4 +646,18 @@ void form_ack_message(Message *ack_message, uint16_t index, uint8_t subindex, ui
 	ack_message->data[6] = (error_section & 0x00FF00) >> 8;
 	ack_message->data[7] = (error_section & 0x0000FF);
 }
+
+void form_percent_ack_message(Message *ack_message, uint8_t percent_value)
+{
+	extern uint32_t master_nodeid;
+	
+	memset(ack_message, 0, sizeof(Message));
+	
+	ack_message->len = 8;
+	ack_message->rtr = CAN_RTR_DATA;
+	ack_message->cob_id = master_nodeid;
+	ack_message->data[3] = 0x0a;
+	ack_message->data[4] = percent_value;
+}
+
 
