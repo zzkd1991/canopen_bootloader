@@ -168,6 +168,7 @@ void packet_value_reset_flow(void)
 
 void determine_first_flow_packet_receved_timeout(void)
 {
+	/*判定超时的前提是收到第一个数据包*/
 	extern __IO uint32_t uwTick;
 	if(packet_info.first_pro_first_packet_tick > 0)
 	{
@@ -180,6 +181,7 @@ void determine_first_flow_packet_receved_timeout(void)
 
 void determine_second_flow_packet_receved_timeout(void)
 {
+	/*判定超时的前提是收到第一个数据包*/
 	extern __IO uint32_t uwTick;
 	if(packet_info.second_pro_first_packet_tick > 0)
 	{
